@@ -156,9 +156,34 @@ select{cursor:pointer;appearance:none;background-image:linear-gradient(45deg,tra
 #scrub{flex:1;accent-color:var(--acc)}
 #tlabel{font:11px var(--mono);color:var(--tx3);min-width:74px;text-align:right}
 #sizeStrip{position:absolute;top:12px;right:14px;display:flex;align-items:flex-end;gap:12px;background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;opacity:.97}
+#sizeStrip.off{display:none}
 #sizeStrip .ss{display:flex;flex-direction:column;align-items:center;gap:4px}
 #sizeStrip .ss span{font:10px var(--mono);color:var(--tx3)}
 #sizeStrip .ss .box{background:#fff;border-radius:2px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+
+/* ---------- helix tengely fogantyuk (HTML retegben, igy nem epul ujra) ---------- */
+#axisLayer{position:absolute;inset:0;pointer-events:none;display:none;z-index:5}
+#axisLayer.on{display:block}
+#axisLayer svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.ah{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  background:rgba(217,166,62,.3);border:2.5px solid #F3D37A;cursor:grab;pointer-events:auto;
+  box-shadow:0 2px 10px rgba(0,0,0,.5);transition:transform .1s,background .12s;
+  display:flex;align-items:center;justify-content:center;font:700 11px var(--sans);color:#fff2d2}
+.ah:hover{background:rgba(217,166,62,.6);transform:scale(1.12)}
+.ah.drag{cursor:grabbing;background:var(--acc);transform:scale(1.2)}
+.ah b{position:absolute;top:30px;left:50%;transform:translateX(-50%);white-space:nowrap;
+  font:600 10.5px var(--sans);color:#20170a;background:#F3D37A;padding:2px 7px;border-radius:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,.45)}
+#axisHint{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);background:var(--bg2);
+  border:1px solid var(--acc);color:var(--tx2);font-size:11.5px;padding:5px 12px;border-radius:14px;
+  white-space:nowrap;box-shadow:0 4px 18px rgba(0,0,0,.5)}
+
+/* ---------- folyamatjelzo ---------- */
+.prog{height:7px;border-radius:4px;background:var(--bg);overflow:hidden;border:1px solid var(--line2)}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc2),var(--acc));transition:width .18s}
+.proglbl{font:11.5px var(--mono);color:var(--tx2);display:flex;justify-content:space-between;margin-top:5px}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.mgrid .fl{margin-bottom:4px}
 #dropHint{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(217,166,62,.14);border:2px dashed var(--acc);z-index:20;font-weight:700;color:var(--acc2)}
 #stage.drag #dropHint{display:flex}
 
@@ -235,13 +260,17 @@ select{cursor:pointer;appearance:none;background-image:linear-gradient(45deg,tra
   <div id="panel"></div>
 
   <div id="stage">
-    <div id="stageInner"><div id="paper" class="checker"></div></div>
+    <div id="stageInner"><div id="paper" class="checker"><div id="axisLayer"></div></div></div>
     <div id="sizeStrip"></div>
     <div id="dropHint">Engedd el a .json vagy .svg fájlt a betöltéshez</div>
     <div id="stageBar">
       <div class="pills" id="bgPills"></div>
       <div class="pills">
         <button id="zOut">&#8722;</button><span id="zoomLbl">100%</span><button id="zIn">+</button><button id="zFit">Fit</button>
+      </div>
+      <div class="pills">
+        <button id="bStrip" title="Méret-előnézetek ki/be (S)">&#9635; Méretek</button>
+        <button id="bAxis" title="Helix tengely fogantyúk (T)">&#8767; Tengely</button>
       </div>
       <div id="scrubWrap" class="hidden">
         <button class="tbtn sm" id="bPlay">&#9654;</button>
@@ -298,7 +327,7 @@ const DEFAULTS = {
            fitMode:'shrink', zoom:1, offsetX:0, offsetY:0, helixBounds:'ignore' },
 
   mark:  { show:true, mode:'geo', glyph:'D', font:'Archivo Black', weight:400,
-           height:640, width:659, stem:176, topBar:183, fitBox:false,
+           height:640, width:659, thickness:176, stem:176, topBar:183, fitBox:false,
            flatRatio:0.575, roundness:2.36, cornerTL:0, cornerBL:0, slant:0,
            fillType:'solid', color:'#0A0A0A', opacity:1,
            strokeMode:false, strokeWidth:18 },
@@ -328,12 +357,13 @@ const DEFAULTS = {
            rungs:15, rungWidth:4, rungOpacity:.85,
            cubes:5, cubeSize:26, cubeGrow:2.6, cubeSpin:0,
            ribbon:true, ribbonWidth:3, ribbonOpacity:.5,
-           layer:'through', thread:0.52, shade:.55, glow:.30 },
+           layer:'through', thread:0.52, autoThread:true, editAxis:false,
+           shade:.55, glow:.30 },
 
   anim:  { mode:'none', duration:6, easing:'ease-in-out', speed:1, playing:true,
            frames:24, stagger:.35 },
 
-  guides:{ grid:false, bbox:false, clearspace:false, baseline:false }
+  guides:{ grid:false, bbox:false, clearspace:false, baseline:false, sizeStrip:true }
 };
 
 /* --------------------------------------------------------------------------
@@ -394,6 +424,28 @@ function stateDiff(a,b){
     if(sx!==sy) out.push({path:p, from:x, to:y});
   });
   return out.sort((m,n)=> m.path<n.path?-1:1);
+}
+
+/* --------------------------------------------------------------------------
+   EGYSEGES D-VASTAGSAG
+   Egyetlen "vastagsag" ertek vezerli a szar, a felso/also gerenda es a jobb
+   oldali tomeg meretet - a belso forma pedig automatikusan ezekbol adodik.
+   Az aranyok a Simple.png mert ertekeibol szarmaznak (szar 176 -> felso 183,
+   also 167, jobb oldal 197).
+   -------------------------------------------------------------------------- */
+const D_RATIO = { top:183/176, bottom:167/176, right:197/176 };
+
+/** Visszaadja a vastagsagbol szarmaztatott mezoket. Nem mutal. */
+function thicknessCascade(mark, inner, t){
+  t = clamp(t, 6, Math.min(mark.width*0.45, mark.height*0.45));
+  const top = t*D_RATIO.top, bot = t*D_RATIO.bottom, right = t*D_RATIO.right;
+  return {
+    thickness: Math.round(t*100)/100,
+    stem: Math.round(t),
+    topBar: Math.round(top),
+    innerW: Math.max(8, Math.round(mark.width - t - right)),
+    innerH: Math.max(8, Math.round(mark.height - top - bot))
+  };
 }
 
 /* szinkezeles */
@@ -1045,6 +1097,7 @@ function buildSVG(host, S, opts){
 
   const goldRef='url(#'+ids.gold+')';
   const blocks=[];   // { g, kind }
+  let autoThreadVal=null;
 
   /* ---------- EMBLEMA ---------- */
   let markG=null, markGeo=null;
@@ -1111,6 +1164,15 @@ function buildSVG(host, S, opts){
     /* ---------- HELIX ---------- */
     if(S.helix.show){
       const hx = deepClone(S.helix);
+      /* Automatikus attoresi pont: ott valt a helix a D moge/ele, ahol a
+         tengely a belso forma vizszintes kozepen halad at. Igy a D vastagsaganak
+         valtoztatasa magatol viszi magaval az atfuzodes helyet. */
+      if(hx.autoThread){
+        const icx = S.mark.stem + (S.inner.offsetX||0) + S.inner.w/2;
+        const dxA = hx.x2 - hx.x1;
+        hx.thread = Math.abs(dxA)>1e-6 ? clamp((icx-hx.x1)/dxA, 0, 1) : 0.5;
+      }
+      autoThreadVal = hx.thread;
       if(F.helixShift){
         const dx=hx.x2-hx.x1, dy=hx.y2-hx.y1;
         const k=(F.helixShift%1);
@@ -1301,7 +1363,7 @@ function buildSVG(host, S, opts){
   /* ---------- SEGEDVONALAK (csak elonezet) ---------- */
   if(!opts.forExport) addGuides(svg, root, S, cb, sc, tx, ty);
 
-  svg.__meta = { contentBox:cb, scale:sc, solved, markGeo,
+  svg.__meta = { contentBox:cb, scale:sc, solved, markGeo, autoThread:autoThreadVal,
                  lineW: texts.map(x=>({k:x.kind,w:inkBox(x.t).width})) };
   return svg;
 }
@@ -1672,6 +1734,9 @@ function migrate(s){
   if(out.gold && !Array.isArray(out.gold.stops)) out.gold.stops=deepClone(DEFAULTS.gold.stops);
   out.gold.stops=out.gold.stops.filter(x=>x&&typeof x.c==='string').map(x=>({c:x.c,p:clamp(+x.p||0,0,100)}));
   if(out.gold.stops.length<2) out.gold.stops=deepClone(DEFAULTS.gold.stops);
+  /* A vastagsag-csuszka mindig a tenyleges szarhoz igazodjon - regi mentesnel,
+     presetnel vagy kezi finomhangolas utan is ertelmes erteket mutasson. */
+  if(out.mark && Math.abs((out.mark.thickness||0)-out.mark.stem)>0.51) out.mark.thickness=out.mark.stem;
   return out;
 }
 
@@ -1815,8 +1880,12 @@ const CONTROL_SCHEMA = [
   {type:'divider'},
   {type:'slider', path:'mark.height', label:'Magasság', min:120, max:1600, step:1, unit:'px'},
   {type:'slider', path:'mark.width', label:'Szélesség', min:120, max:1600, step:1, unit:'px', when:s=>s.mark.mode==='geo'||s.mark.fitBox},
-  {type:'slider', path:'mark.stem', label:'Szár vastagság', min:20, max:520, step:1, unit:'px'},
-  {type:'slider', path:'mark.topBar', label:'Felső gerenda', min:20, max:520, step:1, unit:'px'},
+  {type:'slider', path:'mark.thickness', label:'★ Betűvastagság (minden oldal)', min:10, max:300, step:0.5, unit:'px'},
+  {type:'note', text:'Ez az egy csúszka állítja a szárat, a felső és alsó gerendát és a jobb oldali tömeget is – a belső négyzet mérete és a Cross változat áttörési pontja magától követi.'},
+  {type:'buttons', items:[{id:'thinner',label:'− vékonyabb'},{id:'thicker',label:'+ vastagabb'},{id:'thickReset',label:'Eredeti (176)'}]},
+  {type:'divider'},
+  {type:'slider', path:'mark.stem', label:'Szár – finomhangolás', min:20, max:520, step:1, unit:'px'},
+  {type:'slider', path:'mark.topBar', label:'Felső gerenda – finomhangolás', min:20, max:520, step:1, unit:'px'},
   {type:'readout', label:'Alsó gerenda (számított)', get:(s,m)=> m&&m.markGeo&&m.markGeo.bottomBar!=null ? m.markGeo.bottomBar+' px' : '–'},
   {type:'slider', path:'mark.flatRatio', label:'Egyenes szakasz', min:0, max:0.95, step:0.005, fmt:'%', when:s=>s.mark.mode==='geo'},
   {type:'slider', path:'mark.roundness', label:'Hasas kerekség', min:1, max:8, step:0.01, when:s=>s.mark.mode==='geo'},
@@ -1908,12 +1977,15 @@ const CONTROL_SCHEMA = [
   {type:'toggle', path:'helix.show', label:'Látszik (Cross változat)'},
   {type:'segmented', path:'helix.layer', label:'Rétegzés', options:[
     {v:'through',l:'Áttörő'},{v:'behind',l:'D mögött'},{v:'front',l:'D előtt'}]},
-  {type:'slider', path:'helix.thread', label:'Áttörési pont', min:0, max:1, step:0.005, fmt:'%', when:s=>s.helix.layer==='through'},
+  {type:'toggle', path:'helix.autoThread', label:'Áttörési pont automatikusan', hint:'a belső forma közepén vált', when:s=>s.helix.layer==='through'},
+  {type:'readout', label:'Számított áttörési pont', get:(s,m)=> m&&m.autoThread!=null ? nf(m.autoThread*100,1)+'%' : '–', when:s=>s.helix.layer==='through'&&s.helix.autoThread},
+  {type:'slider', path:'helix.thread', label:'Áttörési pont', min:0, max:1, step:0.005, fmt:'%', when:s=>s.helix.layer==='through'&&!s.helix.autoThread},
   {type:'segmented', path:'layout.helixBounds', label:'Kompozíció alapja', options:[{v:'ignore',l:'Csak a D'},{v:'include',l:'D + helix'}]},
   {type:'note', text:'„Csak a D”: a helix kilóghat a vászonból, a D marad középen – így néz ki a Cross.png. „D + helix”: minden belefér a vászonba.'},
   {type:'divider'},
+  {type:'toggle', path:'helix.editAxis', label:'Tengely fogantyúk mutatása', hint:'A vásznon megjelenik két húzható pont'},
   {type:'axis', label:'Tengely (emblémához képest)'},
-  {type:'buttons', items:[{id:'hxReset',label:'Eredeti tengely'},{id:'hxMirror',label:'Tükrözés'},{id:'hxFlat',label:'Vízszintes'}]},
+  {type:'buttons', items:[{id:'hxReset',label:'Eredeti tengely'},{id:'hxMirror',label:'Tükrözés'},{id:'hxFlat',label:'Vízszintes'},{id:'hxAngle',label:'Szög: −25°'}]},
   {type:'divider'},
   {type:'slider', path:'helix.turns', label:'Fordulatok', min:0.3, max:9, step:0.05},
   {type:'slider', path:'helix.amp', label:'Amplitúdó', min:4, max:320, step:1, unit:'px'},
@@ -1951,13 +2023,15 @@ const CONTROL_SCHEMA = [
   {type:'slider', path:'anim.frames', label:'Export képkockák', min:6, max:90, step:1},
   {type:'note', text:'A „Export képkockák” az animált SVG (flipbook) és a videó/GIF export felbontását adja meg.'},
   {type:'buttons', items:[
-    {id:'expAnimSVG', label:'Animált SVG mentése', kind:'full'},
-    {id:'expWebM', label:'Videó (WebM)'},
-    {id:'expFrames', label:'PNG képkockák'}
+    {id:'expVideo', label:'▶ Videó exportálása…', kind:'pri full'},
+    {id:'expAnimSVG', label:'Animált SVG', kind:'full'},
+    {id:'expFrames', label:'PNG képkockák'},
+    {id:'ffmpegHelp', label:'GIF / MP4 recept'}
   ]}
 ]},
 
 { id:'guides', title:'Segédvonalak', ico:'&#8862;', open:false, rows:[
+  {type:'toggle', path:'guides.sizeStrip', label:'Méret-előnézetek (16/32/64/128 px)', hint:'a vászon jobb felső sarkában'},
   {type:'toggle', path:'guides.grid', label:'Rács és középvonalak'},
   {type:'toggle', path:'guides.bbox', label:'Befoglaló dobozok'},
   {type:'toggle', path:'guides.clearspace', label:'Védőzóna'},
@@ -2134,12 +2208,14 @@ function buildRow(row, state, onChange, ctrls){
     return r; }
 
   case 'toggle': {
+    const wrap=el('div');
     const r=el('div','row'); const l=el('label','',row.label); const b=el('button','sw');
-    r.appendChild(l); r.appendChild(b);
+    r.appendChild(l); r.appendChild(b); wrap.appendChild(r);
+    if(row.hint) wrap.appendChild(el('div','hint', row.hint));
     const t=()=>onChange(row.path, !getPath(window.__S,row.path), {commit:true});
     b.addEventListener('click',t); l.addEventListener('click',t);
-    reg({row,node:r, sync:s=>{ b.classList.toggle('on', !!getPath(s,row.path)); }});
-    return r; }
+    reg({row,node:wrap, sync:s=>{ b.classList.toggle('on', !!getPath(s,row.path)); }});
+    return wrap; }
 
   case 'font': {
     const r=el('div','row col');
@@ -2358,6 +2434,9 @@ let animStart = 0, animRAF = 0, animT = 0, scrubbing = false;
 
 const $ = id=>document.getElementById(id);
 const panel=$('panel'), paper=$('paper'), stage=$('stage'), measure=$('measure');
+/** A logo SVG-je - kizarolag a #paper KOZVETLEN gyereke. A #axisLayer sajat
+ *  (vonalrajzolo) SVG-jet igy sosem keverjuk ossze vele. */
+const curSVG = ()=> paper.querySelector(':scope > svg');
 
 /* ---------- ertesitesek ---------- */
 function toast(msg, kind, ms){
@@ -2393,13 +2472,14 @@ function scheduleRender(){
 }
 function render(){
   const S2=S;
-  paper.innerHTML='';
+  const oldSvg = curSVG();
   let svg;
   try{ svg = buildSVG(paper, S2, {animT:animT, prefix:'dw'}); }
   catch(err){ console.error(err); toast('Renderelési hiba: '+err.message,'bad',5000); return; }
+  if(oldSvg) oldSvg.remove();                 // #axisLayer tullel a rendereket
   lastMeta = svg.__meta||{};
   layoutPaper(S2);
-  drawAxisHandles(svg, S2);
+  updateAxisLayer(svg, S2);
   updateSizeStrip(svg);
   updateStatus(S2);
   syncControls(panel, S2, lastMeta);
@@ -2411,7 +2491,7 @@ function render(){
 function layoutPaper(S2){
   const r=stage.getBoundingClientRect();
   const availW=r.width-60, availH=r.height-112;
-  const svg=paper.querySelector('svg'); if(!svg) return;
+  const svg=curSVG(); if(!svg) return;
   const vb=(svg.getAttribute('viewBox')||'0 0 1 1').split(/\s+/).map(Number);
   const cw=vb[2]||1, ch=vb[3]||1;
   let sc = Math.min(availW/cw, availH/ch);
@@ -2428,8 +2508,11 @@ function updateStatus(S2){
   $('statusRo').textContent='sorok: '+lw.map(x=>Math.round(x.w)).join(' / ')+' px';
 }
 function updateSizeStrip(svg){
+  const strip=$('sizeStrip');
+  strip.classList.toggle('off', !S.guides.sizeStrip);
+  if(!S.guides.sizeStrip){ strip.innerHTML=''; return; }
   const sizes=[16,32,64,128];
-  const strip=$('sizeStrip'); strip.innerHTML='';
+  strip.innerHTML='';
   const vb=(svg.getAttribute('viewBox')||'0 0 1 1').split(/\s+/).map(Number);
   const ar=(vb[2]||1)/(vb[3]||1);
   sizes.forEach(px=>{
@@ -2446,62 +2529,102 @@ function updateSizeStrip(svg){
   });
 }
 
-/* ---------- helix tengely fogantyuk ---------- */
-function drawAxisHandles(svg, S2){
-  if(!S2.helix.show || !S2.mark.show) return;
-  const host = svg.querySelector('#mark_group') || svg.querySelector('#mark_D');
-  if(!host) return;
-  let g=svg.querySelector('#guides');
-  if(!g){ g=mk('g',{id:'guides','pointer-events':'none'}); svg.appendChild(g); }
-  const gg=mk('g',{'pointer-events':'auto'});
-  g.appendChild(gg);
-  const toScreenLocal=(x,y)=>({x,y});
-  const ctm = host.getCTM();
-  const put=(x,y,which)=>{
-    const p=svg.createSVGPoint(); p.x=x; p.y=y;
-    const q=ctm?p.matrixTransform(ctm):p;
-    const c=mk('circle',{cx:nf(q.x,2),cy:nf(q.y,2),r:14,fill:'rgba(217,166,62,.28)',
-      stroke:'#F3D37A','stroke-width':2.5,style:'cursor:grab'});
-    c.addEventListener('mousedown',ev=>{
-      ev.preventDefault(); ev.stopPropagation();
-      const inv=host.getCTM().inverse();
+/* ==========================================================================
+   HELIX TENGELY FOGANTYUK
+   HTML retegben elnek (#axisLayer), nem az SVG-ben - igy tullelik a
+   renderelest, huzas kozben sem tunnek el, es kulon cimkezhetok.
+   Csak akkor latszanak, ha a "Tengely fogantyuk" kapcsolo be van kapcsolva.
+   ========================================================================== */
+const axisLayer = $('axisLayer');
+let _axisBuilt = false, _axisDragging = null;
+
+function buildAxisLayer(){
+  if(_axisBuilt) return;
+  _axisBuilt = true;
+  axisLayer.innerHTML =
+    '<svg><line id="axLine" stroke="rgba(243,211,122,.55)" stroke-width="2" stroke-dasharray="8 7"/></svg>'+
+    '<div class="ah" id="ahA">A<b>helix kezdete</b></div>'+
+    '<div class="ah" id="ahB">B<b>helix vége (nagy kocka)</b></div>'+
+    '<div id="axisHint">Húzd az A és B pontot – ezek a DNS-lánc két vége. A dőlésszög a kettő viszonyából adódik.</div>';
+  [['ahA','a'],['ahB','b']].forEach(([id,which])=>{
+    const h=$(id);
+    h.addEventListener('mousedown',ev=>{
+      ev.preventDefault();
+      _axisDragging = which; h.classList.add('drag');
       const move=e2=>{
-        const r=svg.getBoundingClientRect();
-        const vb=(svg.getAttribute('viewBox')||'0 0 1 1').split(/\s+/).map(Number);
-        const pt=svg.createSVGPoint();
-        pt.x=vb[0]+(e2.clientX-r.left)/r.width*vb[2];
-        pt.y=vb[1]+(e2.clientY-r.top)/r.height*vb[3];
-        const loc=pt.matrixTransform(inv);
+        const svg=curSVG(); if(!svg) return;
+        const host=svg.querySelector('#mark_group')||svg.querySelector('#mark_D'); if(!host) return;
+        const m=host.getScreenCTM(); if(!m) return;
+        const p=svg.createSVGPoint(); p.x=e2.clientX; p.y=e2.clientY;
+        const loc=p.matrixTransform(m.inverse());
         if(which==='a'){ S.helix.x1=Math.round(loc.x); S.helix.y1=Math.round(loc.y); }
         else           { S.helix.x2=Math.round(loc.x); S.helix.y2=Math.round(loc.y); }
         scheduleRender();
       };
-      const up=()=>{ document.removeEventListener('mousemove',move); document.removeEventListener('mouseup',up);
-        commitHistory('helix tengely'); };
+      const up=()=>{
+        document.removeEventListener('mousemove',move); document.removeEventListener('mouseup',up);
+        _axisDragging=null; h.classList.remove('drag'); commitHistory('helix tengely');
+      };
       document.addEventListener('mousemove',move); document.addEventListener('mouseup',up);
     });
-    gg.appendChild(c);
-  };
-  const l=mk('line',{}); gg.appendChild(l);
-  const p1=svg.createSVGPoint(); p1.x=S2.helix.x1; p1.y=S2.helix.y1;
-  const p2=svg.createSVGPoint(); p2.x=S2.helix.x2; p2.y=S2.helix.y2;
-  const q1=ctm?p1.matrixTransform(ctm):p1, q2=ctm?p2.matrixTransform(ctm):p2;
-  l.setAttribute('x1',nf(q1.x,2)); l.setAttribute('y1',nf(q1.y,2));
-  l.setAttribute('x2',nf(q2.x,2)); l.setAttribute('y2',nf(q2.y,2));
-  l.setAttribute('stroke','rgba(243,211,122,.5)'); l.setAttribute('stroke-width',1.5);
-  l.setAttribute('stroke-dasharray','7 6');
-  put(S2.helix.x1,S2.helix.y1,'a'); put(S2.helix.x2,S2.helix.y2,'b');
+  });
+}
+
+function updateAxisLayer(svg, S2){
+  const on = S2.helix.show && S2.helix.editAxis && S2.mark.show;
+  axisLayer.classList.toggle('on', on);
+  if(!on) return;
+  buildAxisLayer();
+  const host = svg.querySelector('#mark_group') || svg.querySelector('#mark_D');
+  const m = host && host.getScreenCTM();
+  if(!m) return;
+  const pr = paper.getBoundingClientRect();
+  const toLocal = (x,y)=>{ const p=svg.createSVGPoint(); p.x=x; p.y=y;
+    const q=p.matrixTransform(m); return { x:q.x-pr.left, y:q.y-pr.top }; };
+  const A = toLocal(S2.helix.x1, S2.helix.y1);
+  const B = toLocal(S2.helix.x2, S2.helix.y2);
+  const ln=$('axLine');
+  if(ln){ ln.setAttribute('x1',nf(A.x,1)); ln.setAttribute('y1',nf(A.y,1));
+          ln.setAttribute('x2',nf(B.x,1)); ln.setAttribute('y2',nf(B.y,1)); }
+  const ha=$('ahA'), hb=$('ahB');
+  if(ha){ ha.style.left=A.x+'px'; ha.style.top=A.y+'px'; }
+  if(hb){ hb.style.left=B.x+'px'; hb.style.top=B.y+'px'; }
+  const ang = Math.atan2(S2.helix.y2-S2.helix.y1, S2.helix.x2-S2.helix.x1)/D2R;
+  const hint=$('axisHint');
+  if(hint) hint.textContent = 'A ↔ B: dőlésszög '+nf(ang,1)+'° · hossz '
+    + Math.round(Math.hypot(S2.helix.x2-S2.helix.x1, S2.helix.y2-S2.helix.y1))+' px'
+    + (_axisDragging?'':'  ·  húzd a pontokat');
 }
 
 /* ==========================================================================
    ALLAPOT VALTOZTATAS
    ========================================================================== */
 function commitHistory(label){ HIST.push(S,label); }
+
+/** A vastagsag-csuszka egyszerre allitja a szarat, a gerendakat es a belso format. */
+function applyThickness(t){
+  const c = thicknessCascade(S.mark, S.inner, t);
+  S.mark.thickness = c.thickness;
+  S.mark.stem      = c.stem;
+  S.mark.topBar    = c.topBar;
+  S.inner.w        = c.innerW;
+  S.inner.h        = c.innerH;
+}
 function onChange(path, value, o){
   o=o||{};
   if(o.action){ doAction(o.action, o.id); return; }
   if(path==null) return;
-  setPath(S, path, value);
+
+  if(path==='mark.thickness'){ applyThickness(value); }
+  else if(path==='mark.width' || path==='mark.height'){
+    setPath(S, path, value);
+    applyThickness(S.mark.thickness);          // vastagsag allando, a tobbi koveti
+  }
+  else {
+    setPath(S, path, value);
+    /* kezi finomhangolasnal a vastagsag-csuszka koveti a szarat, hogy ne csusszon el */
+    if(path==='mark.stem') S.mark.thickness = value;
+  }
   if(o.commit) HIST.push(S, path);
   scheduleRender();
   if(path.indexOf('.font')>0 || path.indexOf('.weight')>0) ensureFonts();
@@ -2546,6 +2669,16 @@ function doAction(a, id){
   case 'og':     applyPatch({canvas:{w:1200,h:630}},'vászon'); return;
   case 'wide':   applyPatch({canvas:{w:1920,h:1080}},'vászon'); return;
   case 'card':   applyPatch({canvas:{w:1800,h:700}},'vászon'); return;
+  case 'thinner':    onChange('mark.thickness', clamp(S.mark.thickness-8,10,300), {commit:true}); return;
+  case 'thicker':    onChange('mark.thickness', clamp(S.mark.thickness+8,10,300), {commit:true}); return;
+  case 'thickReset': onChange('mark.thickness', 176, {commit:true}); return;
+  case 'hxAngle': {
+    /* a Cross.png eredeti -25.4 fokos tengelye, a jelenlegi hosszal */
+    const len=Math.hypot(S.helix.x2-S.helix.x1, S.helix.y2-S.helix.y1)||943;
+    const a=-25.4*D2R, cx=(S.helix.x1+S.helix.x2)/2, cy=(S.helix.y1+S.helix.y2)/2;
+    applyPatch({helix:{ x1:Math.round(cx-Math.cos(a)*len/2), y1:Math.round(cy-Math.sin(a)*len/2),
+                        x2:Math.round(cx+Math.cos(a)*len/2), y2:Math.round(cy+Math.sin(a)*len/2) }},'helix szög');
+    return; }
   case 'sqLock': { const v=Math.round((S.inner.w+S.inner.h)/2); applyPatch({inner:{w:v,h:v}},'négyzetesítés'); return; }
   case 'sqCenter': {
     /* optikai kozep: a belso forma a D tomegenek kozepere kerul */
@@ -2576,8 +2709,9 @@ function doAction(a, id){
   case 'copySVG':   copySVG(); return;
   case 'expJSON':   downloadText(fileBase()+'.json', JSON.stringify({app:'darwin-logo-studio',appVersion:APP_VERSION,state:S},null,2),'application/json'); toast('JSON mentve','ok'); return;
   case 'expAnimSVG':exportAnimSVG(); return;
-  case 'expWebM':   exportWebM(); return;
+  case 'expVideo':  videoDialog(); return;
   case 'expFrames': exportFrames(); return;
+  case 'ffmpegHelp': ffmpegHelp(); return;
   }
 }
 function fileBase(){
@@ -2614,7 +2748,7 @@ async function exportPNG(mult){
     toast('PNG készítése…');
     const txt=buildForExport(S, animT);
     const r=await withFonts(txt,S);
-    const svg=paper.querySelector('svg');
+    const svg=curSVG();
     const vb=(svg.getAttribute('viewBox')||'0 0 1 1').split(/\s+/).map(Number);
     const blob=await rasterize(r.text, vb[2]*mult, vb[3]*mult, null);
     downloadBlob(fileBase()+'@'+mult+'x.png', blob);
@@ -2633,7 +2767,7 @@ async function exportPack(){
   try{
     const txt=buildForExport(deepMerge(S,{canvas:{trim:false}}), 0);
     const r=await withFonts(txt,S);
-    const svg=paper.querySelector('svg');
+    const svg=curSVG();
     const vb=(svg.getAttribute('viewBox')||'0 0 1 1').split(/\s+/).map(Number);
     const ar=vb[2]/vb[3];
     for(const s of sizes){
@@ -2678,7 +2812,7 @@ function exportAnimSVG(){
 async function exportFrames(){
   if(S.anim.mode==='none'){ toast('Előbb válassz animációs módot.','warn'); return; }
   const N=clamp(Math.round(S.anim.frames),4,90);
-  const svg0=paper.querySelector('svg');
+  const svg0=curSVG();
   const vb=(svg0.getAttribute('viewBox')||'0 0 1 1').split(/\s+/).map(Number);
   toast('Képkockák renderelése ('+N+' db)…');
   try{
@@ -2692,39 +2826,186 @@ async function exportFrames(){
     toast('Kész: '+N+' PNG képkocka','ok');
   }catch(e){ toast('Hiba: '+e.message,'bad',5000); }
 }
-async function exportWebM(){
-  if(S.anim.mode==='none'){ toast('Előbb válassz animációs módot.','warn'); return; }
-  if(typeof MediaRecorder==='undefined'){ toast('Ez a böngésző nem támogatja a videórögzítést.','bad'); return; }
-  const svg0=paper.querySelector('svg');
+/* ==========================================================================
+   VIDEO EXPORT
+   Ket fazis, hogy a videohossz PONTOS legyen:
+     1) minden kepkocka elore kirenderelodik PNG blobba (a renderelesi ido itt
+        nem szamit),
+     2) a lejatszas captureStream(0) + requestFrame() parossal megy, pontos
+        idozitessel - igy 1:1-ben annyi masodperc lesz, amennyit beallitottal.
+   A regi megoldas menet kozben rajzolt, ezert a lassu kockak lassitottak is
+   a videot.
+   ========================================================================== */
+const VIDEO_FORMATS = [
+  { id:'mp4',  label:'MP4 (H.264)', ext:'mp4',  mimes:['video/mp4;codecs=avc1.42E01E','video/mp4;codecs=avc1','video/mp4'] },
+  { id:'vp9',  label:'WebM · VP9',  ext:'webm', mimes:['video/webm;codecs=vp9','video/webm'] },
+  { id:'vp8',  label:'WebM · VP8',  ext:'webm', mimes:['video/webm;codecs=vp8','video/webm'] },
+  { id:'alpha',label:'WebM · átlátszó háttér', ext:'webm', mimes:['video/webm;codecs=vp9','video/webm;codecs=vp8'], alpha:true }
+];
+function pickMime(fmt){
+  if(typeof MediaRecorder==='undefined') return null;
+  for(const m of fmt.mimes) if(MediaRecorder.isTypeSupported(m)) return m;
+  return null;
+}
+function videoDialog(){
+  if(S.anim.mode==='none'){ toast('Előbb válassz animációs módot az Animáció szekcióban.','warn',4000); return; }
+  if(typeof MediaRecorder==='undefined'){ toast('Ez a böngésző nem támogatja a videórögzítést. Használd a PNG képkockák exportot.','bad',6000); return; }
+  const avail=VIDEO_FORMATS.filter(f=>pickMime(f));
+  if(!avail.length){ toast('Nincs támogatott videó kodek. Használd a PNG képkockák exportot.','bad',6000); return; }
+  const svg0=curSVG();
   const vb=(svg0.getAttribute('viewBox')||'0 0 1 1').split(/\s+/).map(Number);
-  const W=Math.min(1600,Math.round(vb[2])), H=Math.round(W*vb[3]/vb[2]);
-  const fps=25, secs=S.anim.duration/Math.max(.05,S.anim.speed), total=Math.round(fps*secs);
-  const cv=document.createElement('canvas'); cv.width=W; cv.height=H;
-  const cx=cv.getContext('2d');
-  let mime='video/webm;codecs=vp9';
-  if(!MediaRecorder.isTypeSupported(mime)) mime='video/webm;codecs=vp8';
-  if(!MediaRecorder.isTypeSupported(mime)) mime='video/webm';
-  const stream=cv.captureStream(fps);
-  const rec=new MediaRecorder(stream,{mimeType:mime, videoBitsPerSecond:8_000_000});
-  const chunks=[]; rec.ondataavailable=e=>{ if(e.data.size) chunks.push(e.data); };
-  const done=new Promise(res=>{ rec.onstop=()=>res(new Blob(chunks,{type:'video/webm'})); });
-  toast('Videó rögzítése… ('+total+' kocka)');
-  const css=await fetchEmbeddedFontCSS(fontsInUse(S), charsInUse(S));
-  rec.start();
+  const ar=vb[2]/vb[3];
+  const dur=nf(S.anim.duration/Math.max(.05,S.anim.speed),2);
+
+  modal('Videó exportálása',
+    '<div class="mgrid">'+
+      '<div><label class="fl">Formátum</label><select id="vfFmt">'+
+        avail.map(f=>'<option value="'+f.id+'">'+f.label+'</option>').join('')+'</select></div>'+
+      '<div><label class="fl">Felbontás (szélesség)</label><select id="vfRes">'+
+        '<option value="512">512 px</option><option value="1024" selected>1024 px</option>'+
+        '<option value="1440">1440 px</option><option value="1920">1920 px</option>'+
+        '<option value="'+Math.round(vb[2])+'">Vászon ('+Math.round(vb[2])+' px)</option></select></div>'+
+      '<div><label class="fl">Képkocka / mp</label><select id="vfFps">'+
+        '<option value="24">24</option><option value="30" selected>30</option>'+
+        '<option value="50">50</option><option value="60">60</option></select></div>'+
+      '<div><label class="fl">Ismétlés</label><select id="vfLoop">'+
+        '<option value="1">1× ('+dur+' s)</option><option value="2" selected>2× ('+nf(dur*2,2)+' s)</option>'+
+        '<option value="3">3×</option><option value="5">5×</option></select></div>'+
+      '<div><label class="fl">Háttér</label><select id="vfBg">'+
+        '<option value="#FFFFFF">Fehér</option><option value="#0A0A0A">Fekete</option>'+
+        '<option value="#111111">Brand sötét</option><option value="">Átlátszó (csak alpha WebM)</option></select></div>'+
+      '<div><label class="fl">Minőség</label><select id="vfBit">'+
+        '<option value="6">Normál (6 Mbps)</option><option value="14" selected>Magas (14 Mbps)</option>'+
+        '<option value="28">Nagyon magas (28 Mbps)</option></select></div>'+
+    '</div>'+
+    '<div class="note" id="vfInfo"></div>'+
+    '<div class="note" style="color:var(--warn)">Amíg fut, hagyd ezt a lapot előtérben – háttérben a böngésző lelassítja a renderelést.</div>'+
+    '<div class="prog"><i id="vfBar"></i></div>'+
+    '<div class="proglbl"><span id="vfMsg">Készen áll.</span><span id="vfPct"></span></div>',
+    [{label:'Mégsem', fn:()=>{ _videoCancel=true; }},
+     {label:'Indítás', kind:'pri', fn:m=>{ startVideo(m, ar); return false; }}],
+    m=>{
+      const info=()=>{
+        const fmt=avail.find(f=>f.id===m.querySelector('#vfFmt').value);
+        const w=+m.querySelector('#vfRes').value, fps=+m.querySelector('#vfFps').value;
+        const loops=+m.querySelector('#vfLoop').value;
+        const n=Math.round(fps*S.anim.duration/Math.max(.05,S.anim.speed));
+        m.querySelector('#vfInfo').innerHTML =
+          '<b>'+n+'</b> egyedi képkocka, '+loops+'× lejátszva = <b>'+nf(n*loops/fps,2)+' s</b> videó · '
+          + w+'×'+Math.round(w/ar)+' px'
+          + (fmt.alpha ? ' · az átlátszóság böngészőfüggő, tesztelj bele' : '');
+        m.querySelector('#vfBg').disabled = !fmt.alpha;
+        if(!fmt.alpha && !m.querySelector('#vfBg').value) m.querySelector('#vfBg').value='#FFFFFF';
+      };
+      m.querySelectorAll('select').forEach(sel=>sel.addEventListener('change',info));
+      info();
+    });
+}
+let _videoCancel=false;
+async function startVideo(m, ar){
+  const avail=VIDEO_FORMATS.filter(f=>pickMime(f));
+  const fmt=avail.find(f=>f.id===m.querySelector('#vfFmt').value) || avail[0];
+  const W=clamp(Math.round(+m.querySelector('#vfRes').value||1024), 64, 4096);
+  const H=clamp(Math.round(W/(ar||1)), 64, 4096);
+  const fps=clamp(Math.round(+m.querySelector('#vfFps').value||30), 5, 60);
+  const loops=clamp(Math.round(+m.querySelector('#vfLoop').value||1), 1, 20);
+  const bitrate=clamp(Math.round((+m.querySelector('#vfBit').value||14)*1e6), 1e6, 60e6);
+  const bg=fmt.alpha ? (m.querySelector('#vfBg').value||null) : (m.querySelector('#vfBg').value||'#FFFFFF');
+  const bar=m.querySelector('#vfBar'), msg=m.querySelector('#vfMsg'), pct=m.querySelector('#vfPct');
+  m.querySelectorAll('select,.tbtn.pri').forEach(e=>e.disabled=true);
+  _videoCancel=false;
+  const prog=(v,t)=>{ bar.style.width=Math.round(v*100)+'%'; msg.textContent=t; pct.textContent=Math.round(v*100)+'%'; };
+
+  const N=Math.max(2, Math.round(fps*S.anim.duration/Math.max(.05,S.anim.speed)));
+  const stash={ animT, playing:S.anim.playing };
+  S.anim.playing=false;
   try{
-    for(let i=0;i<total;i++){
-      const txt=injectStyle(buildForExport(S, i/total), css);
-      const blob=await rasterize(txt, W, H, S.canvas.bg==='checker'?'#FFFFFF':null);
-      const img=await new Promise((res,rej)=>{ const u=URL.createObjectURL(blob); const im=new Image();
-        im.onload=()=>{URL.revokeObjectURL(u);res(im);}; im.onerror=rej; im.src=u; });
-      cx.clearRect(0,0,W,H); cx.drawImage(img,0,0,W,H);
-      await new Promise(r=>setTimeout(r, 1000/fps));
+    prog(0.02,'Betűtípusok előkészítése…');
+    const css=await fetchEmbeddedFontCSS(fontsInUse(S), charsInUse(S));
+
+    /* 1. fazis - kepkockak renderelese */
+    const blobs=[]; const tR=performance.now();
+    for(let i=0;i<N;i++){
+      if(_videoCancel) throw new Error('megszakítva');
+      blobs.push(await rasterize(injectStyle(buildForExport(S, i/N), css), W, H, bg));
+      const per=(performance.now()-tR)/(i+1);
+      const left=Math.round(per*(N-i-1)/1000);
+      prog(0.05+0.55*(i+1)/N, 'Képkockák renderelése · '+(i+1)+'/'+N+(i>1?'  · még kb. '+left+' mp':''));
+      if(i%4===3) await new Promise(r=>setTimeout(r,0));
     }
-  }catch(e){ toast('Rögzítési hiba: '+e.message,'bad',5000); }
-  rec.stop();
-  const blob=await done;
-  downloadBlob(fileBase()+'.webm', blob);
-  toast('WebM videó mentve','ok');
+
+    /* 2. fazis - pontos idozitesu kodolas */
+    const cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+    const cx=cv.getContext('2d',{alpha:!bg});
+    const stream=cv.captureStream(0);
+    const track=stream.getVideoTracks()[0];
+    const mime=pickMime(fmt);
+    const rec=new MediaRecorder(stream,{mimeType:mime, videoBitsPerSecond:bitrate});
+    const chunks=[]; rec.ondataavailable=e=>{ if(e.data.size) chunks.push(e.data); };
+    const done=new Promise(res=>{ rec.onstop=()=>res(new Blob(chunks,{type:mime.split(';')[0]})); });
+
+    const cache=new Map();
+    const decode=i=>{ if(i>=N*loops) return null;
+      if(!cache.has(i)) cache.set(i, createImageBitmap(blobs[i%N])); return cache.get(i); };
+    for(let i=0;i<Math.min(5,N*loops);i++) decode(i);
+
+    /* A vasznat MEG a felvetel indulasa elott fel kell festeni: captureStream(0)
+       eseten enelkul a MediaRecorder nem tudja a sav meretet, es ures fajlt ad. */
+    if(bg){ cx.fillStyle=bg; cx.fillRect(0,0,W,H); } else cx.clearRect(0,0,W,H);
+    { const b0=await cache.get(0); cx.drawImage(b0,0,0,W,H); }
+
+    rec.start();
+    const total=N*loops, t0=performance.now();
+    for(let i=0;i<total;i++){
+      if(_videoCancel) break;
+      const bmp=await cache.get(i);
+      cache.delete(i);
+      if(bg){ cx.fillStyle=bg; cx.fillRect(0,0,W,H); } else cx.clearRect(0,0,W,H);
+      cx.drawImage(bmp,0,0,W,H);
+      if(bmp.close) bmp.close();
+      track.requestFrame();
+      decode(i+5);
+      prog(0.60+0.40*(i+1)/total, 'Videó kódolása · '+(i+1)+'/'+total);
+      const wait=(t0+(i+1)*1000/fps)-performance.now();
+      await new Promise(r=>setTimeout(r, Math.max(0,wait)));
+    }
+    /* a kodolo kiuritese: meg egy kocka + rovid varakozas, kulonben az utolso
+       kepkockak lemaradhatnak a fajlbol */
+    track.requestFrame();
+    await new Promise(r=>setTimeout(r, 400));
+    try{ rec.requestData(); }catch(e){}
+    rec.stop();
+    const blob=await done;
+    if(_videoCancel){ toast('Megszakítva','warn'); }
+    else{
+      downloadBlob(fileBase()+'.'+fmt.ext, blob);
+      prog(1,'Kész: '+Math.round(blob.size/1024)+' kB');
+      toast('Videó mentve · '+fmt.label+' · '+nf(total/fps,2)+' s · '+Math.round(blob.size/1024)+' kB','ok',5000);
+      setTimeout(closeModal,900);
+    }
+  }catch(e){
+    prog(0,'Hiba: '+e.message);
+    toast('Videó export hiba: '+e.message,'bad',6000);
+  }finally{
+    animT=stash.animT; S.anim.playing=stash.playing;
+    m.querySelectorAll('select,.tbtn.pri').forEach(e=>e.disabled=false);
+    scheduleRender();
+  }
+}
+function ffmpegHelp(){
+  const b=fileBase();
+  modal('GIF és MP4 recept',
+    '<div class="note">Ha a legjobb minőséget akarod, exportáld a <b>PNG képkockákat</b>, tedd őket egy mappába, '+
+    'és futtasd az <b>ffmpeg</b>-et. Az alábbi parancsokban a képkockaszám (<code>-framerate</code>) egyezzen az '+
+    'Animáció szekcióban beállított értékkel.</div>'+
+    '<div><label class="fl">MP4 (weboldalra, közösségi médiába)</label>'+
+    '<textarea rows="3" readonly>ffmpeg -framerate 30 -i '+b+'-f%03d.png -c:v libx264 -pix_fmt yuv420p -crf 16 -vf "scale=1024:-2" '+b+'.mp4</textarea></div>'+
+    '<div><label class="fl">Animált GIF (jó paletta, kis fájl)</label>'+
+    '<textarea rows="4" readonly>ffmpeg -framerate 30 -i '+b+'-f%03d.png -vf "scale=640:-1:flags=lanczos,split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer" -loop 0 '+b+'.gif</textarea></div>'+
+    '<div><label class="fl">Átlátszó hátterű WebM (VP9 + alpha)</label>'+
+    '<textarea rows="3" readonly>ffmpeg -framerate 30 -i '+b+'-f%03d.png -c:v libvpx-vp9 -pix_fmt yuva420p -b:v 0 -crf 22 '+b+'-alpha.webm</textarea></div>'+
+    '<div class="note">A PNG képkockák átlátszó háttérrel exportálódnak, így a GIF/WebM is az lehet.</div>',
+    [{label:'Bezár'}]);
 }
 
 /* ==========================================================================
@@ -2732,7 +3013,7 @@ async function exportWebM(){
    ========================================================================== */
 function thumbOf(){
   try{
-    const svg=paper.querySelector('svg'); if(!svg) return '';
+    const svg=curSVG(); if(!svg) return '';
     const c=svg.cloneNode(true); c.querySelectorAll('#guides').forEach(n=>n.remove());
     c.setAttribute('width',120); c.setAttribute('height',120);
     const t=new XMLSerializer().serializeToString(c);
@@ -2894,7 +3175,17 @@ function wire(){
   bgs.forEach(([v,l])=>{ const b=el('button','',l);
     b.addEventListener('click',()=>onChange('canvas.bg',v,{commit:true}));
     b.dataset.v=v; bp.appendChild(b); });
-  window.__syncBg=()=>bp.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.canvas.bg));
+  window.__syncBg=()=>{
+    bp.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.canvas.bg));
+    $('bStrip').classList.toggle('on', !!S.guides.sizeStrip);
+    $('bAxis').classList.toggle('on', !!(S.helix.show && S.helix.editAxis));
+    $('bAxis').style.opacity = S.helix.show ? '' : '.4';
+  };
+  $('bStrip').addEventListener('click',()=>onChange('guides.sizeStrip',!S.guides.sizeStrip,{commit:true}));
+  $('bAxis').addEventListener('click',()=>{
+    if(!S.helix.show){ toast('Előbb kapcsold be a helixet (Cross változat vagy H billentyű).','warn',4000); return; }
+    onChange('helix.editAxis',!S.helix.editAxis,{commit:true});
+  });
 
   /* animacio */
   $('bPlay').addEventListener('click',()=>{ onChange('anim.playing',!S.anim.playing,{commit:true});
@@ -2924,6 +3215,10 @@ function wire(){
     if(e.key==='h'||e.key==='H'){ onChange('helix.show',!S.helix.show,{commit:true}); }
     if(e.key==='g'||e.key==='G'){ onChange('guides.grid',!S.guides.grid,{commit:true}); }
     if(e.key==='b'||e.key==='B'){ onChange('guides.bbox',!S.guides.bbox,{commit:true}); }
+    if(e.key==='s'||e.key==='S'){ onChange('guides.sizeStrip',!S.guides.sizeStrip,{commit:true}); }
+    if((e.key==='t'||e.key==='T') && S.helix.show){ onChange('helix.editAxis',!S.helix.editAxis,{commit:true}); }
+    if(e.key==='['){ onChange('mark.thickness', clamp(S.mark.thickness-4,10,300), {commit:true}); }
+    if(e.key===']'){ onChange('mark.thickness', clamp(S.mark.thickness+4,10,300), {commit:true}); }
   });
 
   /* fajl behuzas */
