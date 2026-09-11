@@ -1,0 +1,2967 @@
+<!doctype html>
+<html lang="hu" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Darwin AI · Logo Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>
+/* ============================================================
+   Darwin AI Logo Studio - felulet
+   ============================================================ */
+:root{
+  --bg:#0e0f12; --bg2:#15171c; --bg3:#1b1e25; --bg4:#232733;
+  --line:#2a2e39; --line2:#363b49;
+  --tx:#e8eaf0; --tx2:#a2a9bb; --tx3:#6e7687;
+  --acc:#d9a63e; --acc2:#f3d37a; --acc-dim:#8a6a26;
+  --ok:#4ec98a; --warn:#e0a844; --bad:#e9576b;
+  --rail:318px; --panel:346px;
+  --r:9px; --r2:6px;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Inter,sans-serif;
+}
+html[data-theme="light"]{
+  --bg:#f2f3f6; --bg2:#ffffff; --bg3:#f7f8fa; --bg4:#eceef3;
+  --line:#dfe2e9; --line2:#cfd4de;
+  --tx:#141720; --tx2:#545c6e; --tx3:#8a92a3;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:var(--bg);color:var(--tx);font:13px/1.45 var(--sans);
+  overflow:hidden;-webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:var(--tx3);background-clip:content-box}
+
+/* ---------- vaz ---------- */
+#app{display:grid;grid-template-columns:var(--panel) 1fr var(--rail);grid-template-rows:46px 1fr;height:100vh}
+#top{grid-column:1/-1;display:flex;align-items:center;gap:9px;padding:0 12px;background:var(--bg2);border-bottom:1px solid var(--line);z-index:30}
+#panel{background:var(--bg2);border-right:1px solid var(--line);overflow-y:auto;overflow-x:hidden}
+#stage{position:relative;overflow:hidden;background:radial-gradient(1200px 700px at 50% 0%,#1a1d24 0%,var(--bg) 60%)}
+html[data-theme="light"] #stage{background:radial-gradient(1200px 700px at 50% 0%,#ffffff 0%,var(--bg) 60%)}
+#rail{background:var(--bg2);border-left:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden}
+
+/* ---------- felso sav ---------- */
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:-.2px;margin-right:4px;white-space:nowrap}
+.brand i{width:22px;height:22px;display:block;border-radius:5px;background:linear-gradient(150deg,var(--acc2),var(--acc) 55%,#8a5a18);position:relative;flex:0 0 auto}
+.brand i::after{content:"";position:absolute;inset:6px 5px 6px 8px;background:var(--bg2);border-radius:1px}
+.brand b{background:linear-gradient(90deg,var(--acc2),var(--acc));-webkit-background-clip:text;background-clip:text;color:transparent}
+.spacer{flex:1}
+.tbtn{height:30px;padding:0 11px;border-radius:var(--r2);border:1px solid var(--line2);background:var(--bg3);color:var(--tx2);cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:.12s}
+.tbtn:hover{background:var(--bg4);color:var(--tx);border-color:var(--tx3)}
+.tbtn:active{transform:translateY(1px)}
+.tbtn[disabled]{opacity:.35;cursor:not-allowed;pointer-events:none}
+.tbtn.pri{background:linear-gradient(160deg,var(--acc2),var(--acc));border-color:var(--acc);color:#20170a;font-weight:700}
+.tbtn.pri:hover{filter:brightness(1.08);color:#20170a}
+.tbtn.sm{height:26px;padding:0 8px;font-size:12px}
+.tsep{width:1px;height:22px;background:var(--line);margin:0 2px}
+
+/* ---------- vezerlo panel ---------- */
+.sec{border-bottom:1px solid var(--line)}
+.sec>h3{margin:0;padding:11px 12px;font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--tx2);cursor:pointer;display:flex;align-items:center;gap:8px;user-select:none;transition:.12s}
+.sec>h3:hover{color:var(--tx);background:var(--bg3)}
+.sec>h3 .chev{width:9px;height:9px;border-right:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(-45deg);transition:transform .16s;margin-left:auto;opacity:.6}
+.sec.open>h3 .chev{transform:rotate(45deg)}
+.sec>h3 .ico{font-size:13px;width:15px;text-align:center;opacity:.85}
+.sec>h3 .dot{width:6px;height:6px;border-radius:50%;background:var(--acc);opacity:0;transition:.2s;flex:0 0 auto}
+.sec.touched>h3 .dot{opacity:.9}
+.secbody{display:none;padding:2px 12px 12px}
+.sec.open .secbody{display:block}
+
+.row{display:flex;align-items:center;gap:8px;min-height:29px;padding:1px 0}
+.row>label{flex:1;color:var(--tx2);font-size:12.2px;user-select:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.row>label:hover{color:var(--tx)}
+.row.col{display:block}
+.row .hint{font-size:11px;color:var(--tx3);margin:-1px 0 5px}
+.num{width:62px;height:25px;background:var(--bg);border:1px solid var(--line2);border-radius:5px;text-align:right;padding:0 6px;font:12px var(--mono);flex:0 0 auto}
+.num:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 2px rgba(217,166,62,.15)}
+.unit{color:var(--tx3);font-size:11px;min-width:18px;flex:0 0 auto}
+
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:18px;background:transparent;margin:0;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:3px;background:var(--line2)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--tx);border:none;margin-top:-5px;box-shadow:0 1px 3px rgba(0,0,0,.5);transition:.1s}
+input[type=range]:hover::-webkit-slider-thumb{background:var(--acc2)}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(1.18);background:var(--acc)}
+input[type=range]::-moz-range-track{height:3px;border-radius:3px;background:var(--line2)}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--tx);border:none}
+
+.txt,select,textarea{width:100%;background:var(--bg);border:1px solid var(--line2);border-radius:5px;padding:5px 7px;font-size:12.4px;min-height:27px}
+.txt:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 2px rgba(217,166,62,.15)}
+textarea{resize:vertical;line-height:1.4;font-family:var(--sans)}
+select{cursor:pointer;appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--tx3) 50%),linear-gradient(135deg,var(--tx3) 50%,transparent 50%);background-position:calc(100% - 13px) 11px,calc(100% - 8px) 11px;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:24px}
+
+.seg{display:flex;background:var(--bg);border:1px solid var(--line2);border-radius:6px;padding:2px;gap:2px;flex:0 0 auto}
+.seg button{flex:1;height:21px;padding:0 8px;border:none;background:transparent;color:var(--tx3);border-radius:4px;cursor:pointer;font-size:11.5px;white-space:nowrap;transition:.12s}
+.seg button:hover{color:var(--tx)}
+.seg button.on{background:var(--bg4);color:var(--tx);box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.seg.wide{width:100%}
+
+.sw{position:relative;width:40px;height:23px;border-radius:12px;background:var(--line2);cursor:pointer;flex:0 0 auto;transition:.16s;border:none;padding:0}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:#fff;transition:.16s;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.sw.on{background:linear-gradient(120deg,var(--acc2),var(--acc))}
+.sw.on::after{left:19px}
+
+.clr{position:relative;width:52px;height:23px;border-radius:5px;border:1px solid var(--line2);overflow:hidden;cursor:pointer;flex:0 0 auto;background-image:linear-gradient(45deg,#555 25%,transparent 25%,transparent 75%,#555 75%),linear-gradient(45deg,#555 25%,#333 25%,#333 75%,#555 75%);background-size:8px 8px;background-position:0 0,4px 4px}
+.clr span{position:absolute;inset:0}
+.clr input{position:absolute;inset:-6px;opacity:0;cursor:pointer;width:150%;height:200%}
+.hex{width:76px;height:23px;background:var(--bg);border:1px solid var(--line2);border-radius:5px;padding:0 6px;font:11.5px var(--mono);text-transform:uppercase;flex:0 0 auto}
+
+.gwrap{margin:4px 0 2px}
+.gbar{position:relative;height:26px;border-radius:5px;border:1px solid var(--line2);cursor:copy}
+.gstop{position:absolute;top:-5px;width:13px;height:36px;margin-left:-6.5px;border-radius:3px;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.6);cursor:grab;transition:transform .1s}
+.gstop:hover{transform:scale(1.12)}
+.gstop.sel{border-color:var(--acc2);box-shadow:0 0 0 2px rgba(243,211,122,.45),0 1px 4px rgba(0,0,0,.6)}
+.gmeta{display:flex;align-items:center;gap:6px;margin-top:12px}
+
+.xy{position:relative;width:100%;height:96px;background:var(--bg);border:1px solid var(--line2);border-radius:6px;cursor:crosshair;overflow:hidden;margin:3px 0}
+.xy .gl{position:absolute;background:var(--line)}
+.xy i{position:absolute;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 3px rgba(217,166,62,.22)}
+
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin:3px 0}
+.chip{padding:4px 9px;border-radius:20px;border:1px solid var(--line2);background:var(--bg3);color:var(--tx2);font-size:11.5px;cursor:pointer;transition:.12s;white-space:nowrap}
+.chip:hover{border-color:var(--acc);color:var(--tx)}
+.chip.on{background:linear-gradient(140deg,var(--acc2),var(--acc));border-color:var(--acc);color:#20170a;font-weight:600}
+.btns{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 2px}
+.btns .tbtn{flex:1;justify-content:center;min-width:calc(50% - 3px)}
+.btns .tbtn.full{min-width:100%}
+.tbtn.danger:hover{border-color:var(--bad);color:var(--bad)}
+.ro{font:11.5px var(--mono);color:var(--tx3);background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:2px 7px;flex:0 0 auto}
+.note{font-size:11.2px;color:var(--tx3);line-height:1.5;padding:4px 0 2px}
+.note b{color:var(--tx2);font-weight:600}
+.hr{height:1px;background:var(--line);margin:9px 0}
+.hidden{display:none!important}
+
+/* ---------- szinpad ---------- */
+#stageInner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:30px 30px 82px}
+#paper{position:relative;box-shadow:0 24px 70px rgba(0,0,0,.55);border-radius:2px;transition:background .2s}
+#paper.checker{background-image:linear-gradient(45deg,#d8d8d8 25%,transparent 25%,transparent 75%,#d8d8d8 75%),linear-gradient(45deg,#d8d8d8 25%,#f0f0f0 25%,#f0f0f0 75%,#d8d8d8 75%);background-size:22px 22px;background-position:0 0,11px 11px}
+#paper.white{background:#fff}
+#paper.black{background:#0A0A0A}
+#paper.brand{background:linear-gradient(140deg,#161616,#000)}
+#paper.custom{background:var(--paperbg,#8892a0)}
+#paper svg{display:block;width:100%;height:100%}
+#stageBar{position:absolute;left:0;right:0;bottom:0;height:68px;display:flex;align-items:center;gap:10px;padding:0 14px;background:linear-gradient(to top,rgba(0,0,0,.5),transparent);pointer-events:none}
+#stageBar>*{pointer-events:auto}
+.pills{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:3px}
+.pills button{height:24px;padding:0 9px;border:none;background:transparent;color:var(--tx3);border-radius:5px;cursor:pointer;font-size:11.5px;transition:.12s}
+.pills button:hover{color:var(--tx)}
+.pills button.on{background:var(--bg4);color:var(--tx)}
+#zoomLbl{font:11.5px var(--mono);color:var(--tx2);min-width:46px;text-align:center}
+#scrubWrap{flex:1;max-width:440px;display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:4px 10px}
+#scrub{flex:1;accent-color:var(--acc)}
+#tlabel{font:11px var(--mono);color:var(--tx3);min-width:74px;text-align:right}
+#sizeStrip{position:absolute;top:12px;right:14px;display:flex;align-items:flex-end;gap:12px;background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;opacity:.97}
+#sizeStrip .ss{display:flex;flex-direction:column;align-items:center;gap:4px}
+#sizeStrip .ss span{font:10px var(--mono);color:var(--tx3)}
+#sizeStrip .ss .box{background:#fff;border-radius:2px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#dropHint{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(217,166,62,.14);border:2px dashed var(--acc);z-index:20;font-weight:700;color:var(--acc2)}
+#stage.drag #dropHint{display:flex}
+
+/* ---------- verzio sav ---------- */
+#rail h4{margin:0;padding:11px 12px;font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--tx2);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+#railTools{padding:9px 12px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:7px}
+#vlist{flex:1;overflow-y:auto;padding:9px 10px;display:flex;flex-direction:column;gap:7px}
+.vcard{background:var(--bg3);border:1px solid var(--line);border-radius:8px;padding:8px;display:flex;gap:9px;cursor:pointer;transition:.13s;position:relative}
+.vcard:hover{border-color:var(--tx3);background:var(--bg4)}
+.vcard.cur{border-color:var(--acc);box-shadow:0 0 0 1px rgba(217,166,62,.3)}
+.vcard .th{width:56px;height:56px;flex:0 0 auto;border-radius:5px;overflow:hidden;background-image:linear-gradient(45deg,#3a3a3a 25%,transparent 25%,transparent 75%,#3a3a3a 75%),linear-gradient(45deg,#3a3a3a 25%,#2a2a2a 25%,#2a2a2a 75%,#3a3a3a 75%);background-size:10px 10px;background-position:0 0,5px 5px}
+.vcard .th img{width:100%;height:100%;object-fit:contain;display:block}
+.vcard .vi{flex:1;min-width:0}
+.vcard .vn{font-weight:650;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:52px}
+.vcard .vd{font-size:10.5px;color:var(--tx3);font-family:var(--mono);margin-top:1px}
+.vcard .vnote{font-size:11.2px;color:var(--tx2);margin-top:4px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;line-height:1.35;white-space:pre-wrap;word-break:break-word}
+.vcard .vtags{display:flex;flex-wrap:wrap;gap:3px;margin-top:5px}
+.vtag{font-size:10px;padding:1px 6px;border-radius:9px;background:var(--bg);border:1px solid var(--line2);color:var(--tx3)}
+.vacts{position:absolute;top:5px;right:5px;display:flex;gap:2px;opacity:0;transition:.13s}
+.vcard:hover .vacts{opacity:1}
+.vcard.pinned .vacts .pin{opacity:1}
+.iact{width:22px;height:22px;border:none;background:rgba(0,0,0,.45);color:var(--tx2);border-radius:4px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:.12s;padding:0}
+.iact:hover{background:var(--acc);color:#20170a}
+.iact.pin{opacity:.5}
+.vcard.pinned{border-left:3px solid var(--acc)}
+#railFoot{padding:8px 12px;border-top:1px solid var(--line);font-size:10.6px;color:var(--tx3);display:flex;align-items:center;gap:8px;font-family:var(--mono)}
+.empty{color:var(--tx3);font-size:12px;text-align:center;padding:30px 12px;line-height:1.6}
+
+/* ---------- modal / toast ---------- */
+#modalbg{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(3px);z-index:200;display:none;align-items:center;justify-content:center;padding:24px}
+#modalbg.on{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--line2);border-radius:13px;width:100%;max-width:580px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 30px 90px rgba(0,0,0,.65)}
+.modal header{padding:15px 18px;border-bottom:1px solid var(--line);font-weight:700;font-size:14.5px;display:flex;align-items:center;gap:9px}
+.modal .body{padding:16px 18px;overflow:auto;display:flex;flex-direction:column;gap:11px}
+.modal footer{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end}
+.modal label.fl{display:block;font-size:11.5px;color:var(--tx2);margin-bottom:4px;font-weight:600}
+.difftbl{width:100%;border-collapse:collapse;font:11.5px var(--mono)}
+.difftbl td{padding:3px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.difftbl td:first-child{color:var(--tx2)}
+.difftbl .from{color:var(--bad)}
+.difftbl .to{color:var(--ok)}
+#toasts{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:300;display:flex;flex-direction:column;gap:7px;align-items:center;pointer-events:none}
+.toast{background:var(--bg4);border:1px solid var(--line2);border-radius:8px;padding:9px 15px;font-size:12.5px;box-shadow:0 10px 34px rgba(0,0,0,.5);animation:tin .22s ease-out;max-width:min(70vw,580px)}
+.toast.ok{border-color:var(--ok)} .toast.bad{border-color:var(--bad)} .toast.warn{border-color:var(--warn)}
+@keyframes tin{from{opacity:0;transform:translateY(10px)}}
+#measure{position:absolute;left:-99999px;top:0;width:2000px;height:2000px;visibility:hidden;pointer-events:none}
+
+@media(max-width:1350px){:root{--panel:322px;--rail:266px}}
+@media(max-width:1120px){
+  #app{grid-template-columns:var(--panel) 1fr}
+  #rail{position:fixed;right:0;top:46px;bottom:0;width:302px;z-index:40;transform:translateX(100%);transition:.22s;box-shadow:-14px 0 40px rgba(0,0,0,.5)}
+  #rail.on{transform:none}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top">
+    <div class="brand"><i></i>Darwin <b>AI</b> · Logo Studio</div>
+    <div class="tsep"></div>
+    <button class="tbtn sm" id="bUndo" title="Visszavonás (Ctrl+Z)">&#8630;</button>
+    <button class="tbtn sm" id="bRedo" title="Újra (Ctrl+Shift+Z)">&#8631;</button>
+    <div class="tsep"></div>
+    <button class="tbtn sm" id="bVarSimple" title="Helix nélküli alapváltozat">Simple</button>
+    <button class="tbtn sm" id="bVarCross" title="Helixes változat">Cross</button>
+    <div class="spacer"></div>
+    <span class="ro" id="statusRo">&nbsp;</span>
+    <button class="tbtn" id="bSave" title="Mentés verzióként (Ctrl+S)">&#9733; Mentés</button>
+    <button class="tbtn pri" id="bExport" title="Exportálás (Ctrl+E)">&#8595; Export</button>
+    <button class="tbtn sm" id="bTheme" title="Világos / sötét">&#9681;</button>
+    <button class="tbtn sm" id="bRail" title="Verziók">&#9776;</button>
+  </div>
+
+  <div id="panel"></div>
+
+  <div id="stage">
+    <div id="stageInner"><div id="paper" class="checker"></div></div>
+    <div id="sizeStrip"></div>
+    <div id="dropHint">Engedd el a .json vagy .svg fájlt a betöltéshez</div>
+    <div id="stageBar">
+      <div class="pills" id="bgPills"></div>
+      <div class="pills">
+        <button id="zOut">&#8722;</button><span id="zoomLbl">100%</span><button id="zIn">+</button><button id="zFit">Fit</button>
+      </div>
+      <div id="scrubWrap" class="hidden">
+        <button class="tbtn sm" id="bPlay">&#9654;</button>
+        <input type="range" id="scrub" min="0" max="1000" value="0">
+        <span id="tlabel">0.00 / 6.00 s</span>
+      </div>
+      <div class="spacer"></div>
+      <span class="ro" id="dims">1254 &times; 1254</span>
+    </div>
+  </div>
+
+  <div id="rail">
+    <h4>Verziók <span class="spacer"></span><span class="ro" id="vcount">0</span></h4>
+    <div id="railTools">
+      <input class="txt" id="vSearch" placeholder="Keresés név, megjegyzés, címke...">
+      <div class="btns">
+        <button class="tbtn sm" id="bVImport">Import</button>
+        <button class="tbtn sm" id="bVExport">Export</button>
+        <button class="tbtn sm" id="bVCompare">Összevet</button>
+      </div>
+    </div>
+    <div id="vlist"></div>
+    <div id="railFoot"><span id="vbytes">0 kB</span><span class="spacer" style="flex:1"></span><span id="vpersist">localStorage</span></div>
+  </div>
+</div>
+
+<div id="modalbg"><div class="modal" id="modal"></div></div>
+<div id="toasts"></div>
+<div id="measure"></div>
+<input type="file" id="fileIn" accept=".json,.svg,application/json,image/svg+xml" style="display:none">
+<script>
+"use strict";
+/* ==========================================================================
+   DARWIN AI LOGO STUDIO
+   Egyfajlos, offline parameteres SVG logo szerkeszto.
+   A geometria a Simple.png / Cross.png pixelpontos kimerese alapjan keszult.
+   ========================================================================== */
+
+const APP_VERSION = 3;
+
+/* --------------------------------------------------------------------------
+   ALAPALLAPOT
+   Minden ertek a referencia 1254x1254-es kepteren mert adatokbol szarmazik.
+   A D embléma sajat lokalis koordinatarendszerben el: origo = bal felso sarok.
+   -------------------------------------------------------------------------- */
+const DEFAULTS = {
+  meta:  { name:'Darwin AI', note:'' },
+
+  canvas:{ w:1254, h:1254, bg:'checker', bgColor:'#8892a0', trim:false, trimPad:40 },
+
+  layout:{ mode:'stack', gapMark:40, gapTag:29, gapSvc:27,
+           textWidth:961, widthMode:'fixed', markShift:0,
+           horizGap:56, horizTextAlign:'left', pad:0,
+           fitMode:'shrink', zoom:1, offsetX:0, offsetY:0, helixBounds:'ignore' },
+
+  mark:  { show:true, mode:'geo', glyph:'D', font:'Archivo Black', weight:400,
+           height:640, width:659, stem:176, topBar:183, fitBox:false,
+           flatRatio:0.575, roundness:2.36, cornerTL:0, cornerBL:0, slant:0,
+           fillType:'solid', color:'#0A0A0A', opacity:1,
+           strokeMode:false, strokeWidth:18 },
+
+  inner: { show:true, shape:'square', w:286, h:290, offsetX:0, offsetY:0,
+           radius:0, rotate:0, mode:'knockout', color:'#FFFFFF' },
+
+  word:  { show:true, part1:'Darwin', part2:'AI', font:'Archivo Black', weight:400,
+           size:205, autoSize:true, tracking:-0.045, gapAI:0.012,
+           color1:'#0A0A0A', fill2:'gold', color2:'#D9A63E',
+           italic:false, caseMode:'none' },
+
+  tag:   { show:true, text:'MESTERSÉGES EVOLÚCIÓ', font:'Montserrat', weight:500,
+           size:53, autoSize:true, tracking:0.258, color:'#0A0A0A',
+           fillType:'solid', caseMode:'upper' },
+
+  svc:   { show:true, text:'Oktatás - Tanácsadás - Fejlesztés', font:'Poppins', weight:600,
+           size:57, autoSize:true, tracking:-0.016, color:'#C08A2E',
+           fillType:'gold', caseMode:'none' },
+
+  gold:  { stops:[{c:'#F2BC5E',p:0},{c:'#B47D2B',p:50},{c:'#7F4B05',p:100}],
+           angle:90, type:'linear', metallic:0 },
+
+  helix: { show:false, x1:-161, y1:583, x2:782, y2:135,
+           turns:3.1, amp:66, ampGrow:2.0, phase:0, tilt:18,
+           nodes:15, nodeSize:9, nodeGrow:2.6,
+           rungs:15, rungWidth:4, rungOpacity:.85,
+           cubes:5, cubeSize:26, cubeGrow:2.6, cubeSpin:0,
+           ribbon:true, ribbonWidth:3, ribbonOpacity:.5,
+           layer:'through', thread:0.52, shade:.55, glow:.30 },
+
+  anim:  { mode:'none', duration:6, easing:'ease-in-out', speed:1, playing:true,
+           frames:24, stagger:.35 },
+
+  guides:{ grid:false, bbox:false, clearspace:false, baseline:false }
+};
+
+/* --------------------------------------------------------------------------
+   APRO SEGEDEK
+   -------------------------------------------------------------------------- */
+const clamp = (v,a,b)=> v<a?a : v>b?b : v;
+const lerp  = (a,b,t)=> a+(b-a)*t;
+const TAU   = Math.PI*2;
+const D2R   = Math.PI/180;
+
+function nf(v,p){                       // szam -> rovid string, exponens nelkul
+  if(!isFinite(v)) v = 0;
+  p = p==null ? 2 : p;
+  let s = (Math.round(v*Math.pow(10,p))/Math.pow(10,p)).toFixed(p);
+  if(s.indexOf('.')>=0) s = s.replace(/0+$/,'').replace(/\.$/,'');
+  if(s==='-0') s='0';
+  return s;
+}
+function esc(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function deepClone(o){
+  if(o===null||typeof o!=='object') return o;
+  if(Array.isArray(o)) return o.map(deepClone);
+  const r={}; for(const k in o) if(Object.prototype.hasOwnProperty.call(o,k)) r[k]=deepClone(o[k]);
+  return r;
+}
+function deepMerge(base, patch){
+  const out = deepClone(base);
+  if(!patch || typeof patch!=='object') return out;
+  for(const k in patch){
+    if(!Object.prototype.hasOwnProperty.call(patch,k)) continue;
+    const pv = patch[k];
+    if(pv===undefined) continue;
+    if(pv!==null && typeof pv==='object' && !Array.isArray(pv) &&
+       out[k]!==null && typeof out[k]==='object' && !Array.isArray(out[k])){
+      out[k] = deepMerge(out[k], pv);
+    } else out[k] = deepClone(pv);
+  }
+  return out;
+}
+function getPath(o,p){ const a=p.split('.'); let c=o; for(let i=0;i<a.length;i++){ if(c==null) return undefined; c=c[a[i]]; } return c; }
+function setPath(o,p,v){ const a=p.split('.'); let c=o; for(let i=0;i<a.length-1;i++){ if(c[a[i]]==null) c[a[i]]={}; c=c[a[i]]; } c[a[a.length-1]]=v; }
+function leafPaths(o,pre,acc){
+  acc=acc||[]; pre=pre||'';
+  for(const k in o){
+    const v=o[k], p=pre?pre+'.'+k:k;
+    if(v!==null && typeof v==='object' && !Array.isArray(v)) leafPaths(v,p,acc); else acc.push(p);
+  }
+  return acc;
+}
+function stateDiff(a,b){
+  const out=[], seen={};
+  leafPaths(a).concat(leafPaths(b)).forEach(p=>{ if(seen[p])return; seen[p]=1;
+    const x=getPath(a,p), y=getPath(b,p);
+    const sx=JSON.stringify(x), sy=JSON.stringify(y);
+    if(sx!==sy) out.push({path:p, from:x, to:y});
+  });
+  return out.sort((m,n)=> m.path<n.path?-1:1);
+}
+
+/* szinkezeles */
+function hex2rgb(h){
+  h=String(h||'#000').trim().replace('#','');
+  if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  if(!/^[0-9a-fA-F]{6}$/.test(h)) h='000000';
+  return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+}
+function rgb2hex(r,g,b){
+  const f=v=>('0'+clamp(Math.round(v),0,255).toString(16)).slice(-2);
+  return ('#'+f(r)+f(g)+f(b)).toUpperCase();
+}
+function shade(hex,k){                   // k<1 sotetit, k>1 vilagosit
+  const c=hex2rgb(hex);
+  if(k<=1) return rgb2hex(c[0]*k, c[1]*k, c[2]*k);
+  return rgb2hex(c[0]+(255-c[0])*(k-1), c[1]+(255-c[1])*(k-1), c[2]+(255-c[2])*(k-1));
+}
+function mixHex(a,b,t){
+  const x=hex2rgb(a), y=hex2rgb(b);
+  return rgb2hex(lerp(x[0],y[0],t), lerp(x[1],y[1],t), lerp(x[2],y[2],t));
+}
+function sampleStops(stops,pos){         // pos: 0..100
+  const s=(stops||[]).slice().sort((a,b)=>a.p-b.p);
+  if(!s.length) return '#D9A63E';
+  if(pos<=s[0].p) return s[0].c;
+  if(pos>=s[s.length-1].p) return s[s.length-1].c;
+  for(let i=0;i<s.length-1;i++){
+    if(pos>=s[i].p && pos<=s[i+1].p){
+      const d=s[i+1].p-s[i].p;
+      return mixHex(s[i].c, s[i+1].c, d===0?0:(pos-s[i].p)/d);
+    }
+  }
+  return s[s.length-1].c;
+}
+
+/* --------------------------------------------------------------------------
+   PATH EPITO  -  csak M / L / C / Z, abszolut koordinatakkal.
+   Igy barmilyen affin transzformacio (pl. dolesszog) pontosan rasuthato.
+   -------------------------------------------------------------------------- */
+function PB(){
+  const cmds=[];
+  return {
+    M(x,y){ cmds.push(['M',x,y]); return this; },
+    L(x,y){ cmds.push(['L',x,y]); return this; },
+    C(a,b,c,d,e,f){ cmds.push(['C',a,b,c,d,e,f]); return this; },
+    Z(){ cmds.push(['Z']); return this; },
+    cmds,
+    out(map,prec){
+      const p = prec==null?2:prec;
+      let s='';
+      for(const c of cmds){
+        if(c[0]==='Z'){ s+='Z'; continue; }
+        s += c[0];
+        for(let i=1;i<c.length;i+=2){
+          const pt = map ? map(c[i],c[i+1]) : {x:c[i],y:c[i+1]};
+          s += (i>1?' ':'') + nf(pt.x,p) + ',' + nf(pt.y,p);
+        }
+      }
+      return s;
+    }
+  };
+}
+function shearMap(slantDeg, cy){
+  if(!slantDeg) return null;
+  const k = Math.tan(clamp(slantDeg,-40,40)*D2R);
+  return (x,y)=> ({ x: x + (cy-y)*k, y: y });
+}
+
+/* --------------------------------------------------------------------------
+   SZUPERELLIPSZIS  |x/rx|^n + |y/ry|^n = 1  ->  kobos Bezier kozelites
+   n = 2 : ellipszis   n > 2 : "squircle" (teltebb, szogletesebb)
+   A mert D hasas resze n = 2.36 -nal illeszkedik (RMSE 3.4 px / 640 px).
+   -------------------------------------------------------------------------- */
+function sgnpow(u,e){ return u<0 ? -Math.pow(-u,e) : Math.pow(u,e); }
+
+function sePoint(rx,ry,e,t){
+  return { x: rx*sgnpow(Math.cos(t),e), y: ry*sgnpow(Math.sin(t),e) };
+}
+function seTangent(rx,ry,e,t){
+  const c=Math.cos(t), s=Math.sin(t), ac=Math.abs(c), as=Math.abs(s);
+  let dx, dy;
+  if(ac<1e-7){ dx = -Math.sign(s||1)*1e9; } else dx = -rx*e*Math.pow(ac,e-1)*s;
+  if(as<1e-7){ dy =  Math.sign(c||1)*1e9; } else dy =  ry*e*Math.pow(as,e-1)*c;
+  let L=Math.hypot(dx,dy);
+  if(!isFinite(L)||L<1e-9){                    // veges differencia tartalek
+    const h=1e-4, a=sePoint(rx,ry,e,t-h), b=sePoint(rx,ry,e,t+h);
+    dx=b.x-a.x; dy=b.y-a.y; L=Math.hypot(dx,dy)||1;
+  }
+  return { x:dx/L, y:dy/L };
+}
+/** A szuperellipszis ivet [t0,t1] kozott hozzafuzi a path-hoz (az M mar megvolt). */
+function seArc(pb, cx, cy, rx, ry, n, t0, t1, segs){
+  const e = 2/clamp(n, .35, 24);
+  segs = segs || 20;
+  let prev = sePoint(rx,ry,e,t0), prevT = seTangent(rx,ry,e,t0);
+  for(let i=1;i<=segs;i++){
+    const ta = t0 + (t1-t0)*(i-1)/segs;
+    const tb = t0 + (t1-t0)*i/segs;
+    const P1 = sePoint(rx,ry,e,tb), T1 = seTangent(rx,ry,e,tb);
+    const M  = sePoint(rx,ry,e,(ta+tb)/2);
+    // kozeppont-illesztes: B(0.5) = M  ->  alfa
+    const mx = M.x-(prev.x+P1.x)/2, my = M.y-(prev.y+P1.y)/2;
+    const ux = prevT.x-T1.x,        uy = prevT.y-T1.y;
+    const den = ux*ux+uy*uy;
+    const chord = Math.hypot(P1.x-prev.x, P1.y-prev.y);
+    let a = den>1e-9 ? (8/3)*(mx*ux+my*uy)/den : chord/3;
+    if(!isFinite(a)) a = chord/3;
+    a = clamp(a, chord*0.05, chord*0.8);
+    pb.C(cx+prev.x+prevT.x*a, cy+prev.y+prevT.y*a,
+         cx+P1.x   -T1.x*a,   cy+P1.y   -T1.y*a,
+         cx+P1.x,             cy+P1.y);
+    prev=P1; prevT=T1;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   A "D" EMBLEMA KULSO KONTURJA
+   Bal oldal egyenes, felul/alul egyenes szakasz flatRatio-ig, jobb oldal
+   szuperellipszis iv. A ket bal sarok tetszolegesen lekerekitheto.
+   -------------------------------------------------------------------------- */
+function markOuterPath(m){
+  const W = Math.max(20,m.width), H = Math.max(20,m.height);
+  const F = clamp(m.flatRatio,0,.985)*W;          // az egyenes szakasz vege
+  const rx = Math.max(1, W-F), ry = H/2, cy = H/2;
+  const maxR = Math.min(H/2, Math.max(0,F));
+  const rT = clamp(m.cornerTL||0, 0, maxR);
+  const rB = clamp(m.cornerBL||0, 0, maxR);
+  const k = 0.5523;                                 // kor -> Bezier allando
+  const pb = PB();
+
+  if(rT>0){ pb.M(0, rT); pb.C(0, rT-rT*k, rT-rT*k, 0, rT, 0); }
+  else      pb.M(0,0);
+  pb.L(F, 0);
+  seArc(pb, F, cy, rx, ry, m.roundness, -Math.PI/2, Math.PI/2, 22);
+  pb.L(rB, H);
+  if(rB>0) pb.C(rB-rB*k, H, 0, H-rB+rB*k, 0, H-rB);
+  pb.Z();
+  return pb;
+}
+
+/* --------------------------------------------------------------------------
+   A BELSO NEGATIV FORMA (knockout).  Fordított körüljárással készül, így
+   nonzero ÉS evenodd kitöltéssel is valódi lyuk marad.
+   -------------------------------------------------------------------------- */
+function innerShapePath(inner, box){
+  const {x,y,w,h} = box, cx=x+w/2, cy=y+h/2;
+  const rot = (inner.rotate||0)*D2R;
+  const rp = (px,py)=>{
+    if(!rot) return {x:px,y:py};
+    const dx=px-cx, dy=py-cy, c=Math.cos(rot), s=Math.sin(rot);
+    return { x: cx+dx*c-dy*s, y: cy+dx*s+dy*c };
+  };
+  const pb = PB();
+  const P = (px,py)=>{ const q=rp(px,py); pb.L(q.x,q.y); };
+  const M = (px,py)=>{ const q=rp(px,py); pb.M(q.x,q.y); };
+  const C = (a,b,c,d,e,f)=>{ const p1=rp(a,b),p2=rp(c,d),p3=rp(e,f); pb.C(p1.x,p1.y,p2.x,p2.y,p3.x,p3.y); };
+  const k=0.5523;
+
+  switch(inner.shape){
+    case 'none': return null;
+
+    case 'circle': {                        // ellipszis, oramutatoval ellentetes
+      const a=w/2, b=h/2;
+      M(cx, cy-b);
+      C(cx-a*k, cy-b, cx-a, cy-b*k, cx-a, cy);
+      C(cx-a, cy+b*k, cx-a*k, cy+b, cx, cy+b);
+      C(cx+a*k, cy+b, cx+a, cy+b*k, cx+a, cy);
+      C(cx+a, cy-b*k, cx+a*k, cy-b, cx, cy-b);
+      pb.Z(); return pb;
+    }
+    case 'diamond':
+      M(cx, y); P(x, cy); P(cx, y+h); P(x+w, cy); pb.Z(); return pb;
+
+    case 'hexagon': {                        // lapos tetejü hatszog
+      const q=w*0.25;
+      M(x+q, y); P(x, cy); P(x+q, y+h); P(x+w-q, y+h); P(x+w, cy); P(x+w-q, y);
+      pb.Z(); return pb;
+    }
+    case 'triangle':
+      M(cx, y); P(x, y+h); P(x+w, y+h); pb.Z(); return pb;
+
+    case 'cross': {
+      const tw=w*0.34, th=h*0.34;
+      M(cx-tw/2, y); P(cx-tw/2, cy-th/2); P(x, cy-th/2); P(x, cy+th/2);
+      P(cx-tw/2, cy+th/2); P(cx-tw/2, y+h); P(cx+tw/2, y+h); P(cx+tw/2, cy+th/2);
+      P(x+w, cy+th/2); P(x+w, cy-th/2); P(cx+tw/2, cy-th/2); P(cx+tw/2, y);
+      pb.Z(); return pb;
+    }
+    case 'slash': {
+      const tw=Math.min(w,h)*0.30;
+      M(x+w-tw, y); P(x+w, y); P(x+tw, y+h); P(x, y+h); pb.Z(); return pb;
+    }
+    default: {                               // negyzet, opcionalis lekerekitessel
+      const r = clamp(inner.radius||0, 0, Math.min(w,h)/2);
+      if(r<=0){ M(x,y); P(x,y+h); P(x+w,y+h); P(x+w,y); pb.Z(); return pb; }
+      M(x, y+r);
+      P(x, y+h-r);          C(x, y+h-r+r*k, x+r-r*k, y+h, x+r, y+h);
+      P(x+w-r, y+h);        C(x+w-r+r*k, y+h, x+w, y+h-r+r*k, x+w, y+h-r);
+      P(x+w, y+r);          C(x+w, y+r-r*k, x+w-r+r*k, y, x+w-r, y);
+      P(x+r, y);            C(x+r-r*k, y, x, y+r-r*k, x, y+r);
+      pb.Z(); return pb;
+    }
+  }
+}
+
+/** Az emblema teljes geometriaja (kulso + belso + doleses transzformacio). */
+function buildMark(m, inner){
+  const box = {
+    x: m.stem + (inner.offsetX||0),
+    y: m.topBar + (inner.offsetY||0),
+    w: Math.max(2, inner.w), h: Math.max(2, inner.h)
+  };
+  const map = shearMap(m.slant, m.height/2);
+  const outerPB = markOuterPath(m);
+  const innerPB = inner.show ? innerShapePath(inner, box) : null;
+  return {
+    outer: outerPB.out(map,2),
+    inner: innerPB ? innerPB.out(map,2) : null,
+    box,
+    bottomBar: Math.round(m.height - box.y - box.h)
+  };
+}
+
+/* ==========================================================================
+   HELIX / DNS MOTIVUM  (a Cross.png valtozat)
+   A tengely az emblema lokalis koordinatarendszereben van megadva, igy a
+   helix egyutt mozog es skalazodik a D betuvel.
+   ========================================================================== */
+
+/** Izometrikus kocka: 8 sarok forgatasa (yaw = Y tengely, pitch = X tengely),
+ *  ortografikus vetites, hatlapok eldobasa. Barmilyen szognel helyes marad. */
+function isoCube(cx, cy, size, yawDeg, pitchDeg){
+  const s = size/2;
+  const cyw=Math.cos(yawDeg*D2R), syw=Math.sin(yawDeg*D2R);
+  const cpt=Math.cos(pitchDeg*D2R), spt=Math.sin(pitchDeg*D2R);
+  const rot = (x,y,z)=>{
+    let X = x*cyw - z*syw, Z = x*syw + z*cyw;      // yaw
+    let Y = y*cpt - Z*spt; Z = y*spt + Z*cpt;      // pitch
+    return [X,Y,Z];
+  };
+  const V=[];
+  for(let i=0;i<8;i++){
+    const x=(i&1?1:-1)*s, y=(i&2?1:-1)*s, z=(i&4?1:-1)*s;
+    V.push(rot(x,y,z));
+  }
+  // lapok: sarokindexek + kifele mutato normalis
+  const FACES=[
+    {i:[0,2,6,4], n:[-1,0,0]}, {i:[1,5,7,3], n:[1,0,0]},
+    {i:[0,4,5,1], n:[0,-1,0]}, {i:[2,3,7,6], n:[0,1,0]},
+    {i:[0,1,3,2], n:[0,0,-1]}, {i:[4,6,7,5], n:[0,0,1]}
+  ];
+  const out=[];
+  for(const f of FACES){
+    const n = rot(f.n[0],f.n[1],f.n[2]);
+    if(n[2] >= -0.001) continue;                    // nezo a -Z fele van
+    const pts = f.i.map(ix=>V[ix]);
+    let d=0; pts.forEach(p=>d+=p[2]); d/=4;
+    const dd = ' ';
+    let path='M';
+    pts.forEach((p,j)=>{ path += (j?'L':'') + nf(cx+p[0],2)+','+nf(cy-p[1],2); });
+    path+='Z';
+    // fenyesseg: a felfele nezo lap a legvilagosabb
+    const light = 0.30 + 0.44*(0.5+0.5*n[1]) + 0.26*(0.5+0.5*(-n[0]));
+    out.push({ d:path, depth:d, light: clamp(light,0,1.35) });
+  }
+  out.sort((a,b)=>b.depth-a.depth);                 // hatulrol elore
+  return out;
+}
+
+/** Catmull-Rom pontsor -> sima kobos Bezier path */
+function smoothPath(pts){
+  if(!pts.length) return '';
+  if(pts.length<3) return 'M'+pts.map(p=>nf(p.x,2)+','+nf(p.y,2)).join('L');
+  let d='M'+nf(pts[0].x,2)+','+nf(pts[0].y,2);
+  for(let i=0;i<pts.length-1;i++){
+    const p0=pts[i-1]||pts[i], p1=pts[i], p2=pts[i+1], p3=pts[i+2]||pts[i+1];
+    d+='C'+nf(p1.x+(p2.x-p0.x)/6,2)+','+nf(p1.y+(p2.y-p0.y)/6,2)
+      +' '+nf(p2.x-(p3.x-p1.x)/6,2)+','+nf(p2.y-(p3.y-p1.y)/6,2)
+      +' '+nf(p2.x,2)+','+nf(p2.y,2);
+  }
+  return d;
+}
+
+/**
+ * A helix osszes rajzelemet elkesziti, hatulrol elore rendezve.
+ * Visszateres: { items:[...], meta:{ back:[], front:[], ribbons:[], angle, len } }
+ */
+function buildHelix(h, phaseExtra){
+  const P1={x:h.x1,y:h.y1}, P2={x:h.x2,y:h.y2};
+  const dx=P2.x-P1.x, dy=P2.y-P1.y;
+  const len=Math.hypot(dx,dy)||1;
+  const U={x:dx/len, y:dy/len};            // tengely irany
+  const N={x:-U.y, y:U.x};                 // meroleges
+  const ph=(h.phase||0)+(phaseExtra||0);
+  const tiltK=Math.sin(clamp(h.tilt||0,-80,80)*D2R)*0.62;
+
+  const ampAt=t=> h.amp*lerp(1, h.ampGrow, t);
+  const ang  =(t,strand)=> TAU*h.turns*t + ph + strand*Math.PI;
+
+  function P(t,strand){
+    const a=ang(t,strand), A=ampAt(t);
+    const perp=A*Math.sin(a), along=A*Math.cos(a)*tiltK;
+    return {
+      x: P1.x + U.x*(len*t+along) + N.x*perp,
+      y: P1.y + U.y*(len*t+along) + N.y*perp,
+      depth: Math.cos(a), t, strand
+    };
+  }
+
+  const items=[], ribbons=[];
+
+  /* --- szalak (vekony szalag hatul) --- */
+  if(h.ribbon){
+    for(let s=0;s<2;s++){
+      const pts=[]; const SM=Math.max(40, Math.round(h.turns*28));
+      for(let i=0;i<=SM;i++) pts.push(P(i/SM, s));
+      ribbons.push({ kind:'ribbon', d:smoothPath(pts), strand:s,
+                     w:h.ribbonWidth, opacity:h.ribbonOpacity });
+    }
+  }
+
+  /* --- osszekoto rudak --- */
+  const nR=Math.max(0,Math.round(h.rungs));
+  for(let i=0;i<nR;i++){
+    const t=nR===1?0.5:i/(nR-1);
+    const a=P(t,0), b=P(t,1);
+    items.push({ kind:'rung', x1:a.x,y1:a.y,x2:b.x,y2:b.y, t,
+                 w:h.rungWidth*lerp(1,h.nodeGrow*0.7+0.3,t),
+                 depth:Math.min(a.depth,b.depth), opacity:h.rungOpacity });
+  }
+
+  /* --- gombok --- */
+  const nN=Math.max(0,Math.round(h.nodes));
+  for(let s=0;s<2;s++){
+    for(let i=0;i<nN;i++){
+      const t=nN===1?0.5:i/(nN-1);
+      const p=P(t,s);
+      const r=h.nodeSize*lerp(1,h.nodeGrow,t)*(0.74+0.26*(p.depth+1)/2);
+      items.push({ kind:'sphere', x:p.x, y:p.y, r:Math.max(.4,r), depth:p.depth, t, strand:s });
+    }
+  }
+
+  /* --- kockak (a 0. szalon ulnek, a vegen a legnagyobb) --- */
+  const nC=Math.max(0,Math.round(h.cubes));
+  for(let i=0;i<nC;i++){
+    const t=nC===1?1:Math.pow(i/(nC-1), .92);
+    const p=P(t,0);
+    const size=h.cubeSize*lerp(1,h.cubeGrow,t);
+    const yaw=ang(t,0)/D2R*0.33 + (h.cubeSpin||0);
+    items.push({ kind:'cube', x:p.x, y:p.y, size, yaw, pitch:28, depth:p.depth+0.02, t });
+  }
+
+  items.sort((a,b)=> a.depth-b.depth);          // festo algoritmus
+
+  const thr=clamp(h.thread,0,1);
+  const back=[], front=[];
+  if(h.layer==='behind')      back.push.apply(back, items);
+  else if(h.layer==='front')  front.push.apply(front, items);
+  else items.forEach(it=> (it.t<thr?back:front).push(it));
+
+  const rBack=[], rFront=[];
+  if(h.layer==='front') rFront.push.apply(rFront, ribbons); else rBack.push.apply(rBack, ribbons);
+
+  return { items, ribbons, meta:{ back, front, rBack, rFront,
+           angle:Math.atan2(dy,dx)/D2R, len } };
+}
+
+/* --------------------------------------------------------------------------
+   AZ ANIMACIO IDOFUGGVENYEI
+   Minden mod egyetlen t (0..1 ciklusposicio) alapjan szamol - igy az
+   elonezet, a scrubber es a kepkocka-export pontosan ugyanazt adja.
+   -------------------------------------------------------------------------- */
+const ANIM_MODES = [
+  { id:'none',     label:'Nincs animáció',        hint:'Statikus logó.' },
+  { id:'shimmer',  label:'Arany fénycsík',        hint:'Fénycsík fut végig az arany elemeken.' },
+  { id:'helixSpin',label:'Helix forgás',          hint:'A DNS-spirál a tengelye körül forog.' },
+  { id:'travel',   label:'Utazó elemek',          hint:'A gömbök és kockák végigfutnak a tengelyen.' },
+  { id:'thread',   label:'Átfűződés',             hint:'A helix balról belefűződik a D-be, majd jobb felül kijön.' },
+  { id:'assemble', label:'Összeállás',            hint:'A logó elemei sorban beúsznak – intróhoz.' },
+  { id:'drawIn',   label:'Megrajzolás',           hint:'A D kontúrja megrajzolódik, majd kitöltődik.' },
+  { id:'pulse',    label:'Lüktetés',              hint:'Finom lélegző skálázás a D-n és a kockákon.' },
+  { id:'orbit',    label:'Kocka pörgés',          hint:'A kockák a saját tengelyük körül forognak.' },
+  { id:'reveal',   label:'Feltárás',              hint:'Soronként felülről lefelé úszik be a lockup.' },
+  { id:'glow',     label:'Ragyogás',              hint:'Arany fény lüktet a helixen.' }
+];
+
+const EASINGS = {
+  'linear'       : t=>t,
+  'ease-in-out'  : t=> t<.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2,
+  'ease-out'     : t=> 1-Math.pow(1-t,3),
+  'ease-in'      : t=> t*t*t,
+  'back-out'     : t=>{ const c=1.70158; return 1+ (c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2); },
+  'bounce'       : t=>{ const n=7.5625,d=2.75;
+      if(t<1/d) return n*t*t;
+      if(t<2/d) return n*(t-=1.5/d)*t+.75;
+      if(t<2.5/d) return n*(t-=2.25/d)*t+.9375;
+      return n*(t-=2.625/d)*t+.984375; }
+};
+function ease(name,t){ return (EASINGS[name]||EASINGS['ease-in-out'])(clamp(t,0,1)); }
+
+/**
+ * Az aktualis idopillanat (0..1) alapjan visszaadja az osszes animalt
+ * eltolast / szorzot, amit a renderer alkalmaz.
+ */
+function animFrame(a, cyc){
+  const F = {
+    helixPhase:0, helixShift:0, helixOpacity:1, threadMask:1,
+    markScale:1, markOpacity:1, markDraw:1, innerScale:1,
+    cubeSpin:0, glow:0, sweep:null,
+    op:{ word:1, tag:1, svc:1, mark:1, helix:1 },
+    dy:{ word:0, tag:0, svc:0, mark:0 }
+  };
+  if(!a || a.mode==='none') return F;
+  const t = clamp(cyc,0,1);
+  const st = a.stagger==null ? .35 : a.stagger;
+  const seg=(i,n)=>{                       // i. elem sajat 0..1 ideje staggerrel
+    const w=1/(1+st*(n-1));
+    const s=i*st*w;
+    return clamp((t-s)/w,0,1);
+  };
+  switch(a.mode){
+    case 'shimmer':  F.sweep = t; break;
+    case 'glow':     F.glow = 0.5+0.5*Math.sin(t*TAU); F.sweep=t; break;
+    case 'helixSpin':F.helixPhase = t*TAU; break;
+    case 'travel':   F.helixShift = t; F.helixPhase = t*TAU*0.5; break;
+    case 'orbit':    F.cubeSpin = t*360; break;
+    case 'pulse': {
+      const k = 1+0.022*Math.sin(t*TAU);
+      F.markScale=k; F.innerScale=1+0.05*Math.sin(t*TAU+Math.PI/3); F.cubeSpin=Math.sin(t*TAU)*14;
+      break; }
+    case 'thread': {
+      const e=ease(a.easing,t);
+      F.threadMask=e; F.helixPhase=e*TAU*0.8;
+      break; }
+    case 'drawIn': {
+      const e=ease(a.easing, clamp(t/0.72,0,1));
+      F.markDraw = e;
+      F.op.mark = clamp((t-0.55)/0.3,0,1);
+      F.op.word = ease('ease-out', clamp((t-0.55)/0.25,0,1));
+      F.op.tag  = ease('ease-out', clamp((t-0.66)/0.25,0,1));
+      F.op.svc  = ease('ease-out', clamp((t-0.76)/0.25,0,1));
+      F.op.helix= clamp((t-0.6)/0.3,0,1);
+      break; }
+    case 'assemble': {
+      const eM=ease(a.easing,seg(0,5)), eH=ease(a.easing,seg(1,5)),
+            eW=ease(a.easing,seg(2,5)), eT=ease(a.easing,seg(3,5)), eS=ease(a.easing,seg(4,5));
+      F.op.mark=eM; F.markScale=lerp(.86,1,eM); F.innerScale=lerp(.4,1,eM);
+      F.op.helix=eH; F.threadMask=eH; F.helixPhase=(1-eH)*TAU*0.6;
+      F.op.word=eW; F.dy.word=(1-eW)*46;
+      F.op.tag =eT; F.dy.tag =(1-eT)*34;
+      F.op.svc =eS; F.dy.svc =(1-eS)*28;
+      break; }
+    case 'reveal': {
+      const eM=ease('ease-out',seg(0,4)), eW=ease('ease-out',seg(1,4)),
+            eT=ease('ease-out',seg(2,4)), eS=ease('ease-out',seg(3,4));
+      F.op.mark=eM; F.dy.mark=(1-eM)*-40;
+      F.op.word=eW; F.dy.word=(1-eW)*40;
+      F.op.tag =eT; F.dy.tag =(1-eT)*34;
+      F.op.svc =eS; F.dy.svc =(1-eS)*28;
+      F.op.helix=eM;
+      break; }
+  }
+  return F;
+}
+
+/* ==========================================================================
+   RENDERER
+   Valodi SVG DOM-ot epit, mert a szovegek pontos tintadobozat (ink bbox)
+   csak a bongeszo tudja megmondani - erre epul a sorok szelesseg-egyeztetese.
+   ========================================================================== */
+const SVGNS = 'http://www.w3.org/2000/svg';
+const mk = (n,a)=>{ const e=document.createElementNS(SVGNS,n); if(a) for(const k in a) if(a[k]!=null) e.setAttribute(k,a[k]); return e; };
+
+/* --- gradiens defs --- */
+function goldAngleVec(deg){
+  const r=(deg||0)*D2R, c=Math.cos(r), s=Math.sin(r);
+  return { x1:nf(.5-.5*c,4), y1:nf(.5-.5*s,4), x2:nf(.5+.5*c,4), y2:nf(.5+.5*s,4) };
+}
+function goldStopList(g){
+  let st=(g.stops||[]).slice().sort((a,b)=>a.p-b.p);
+  if(!st.length) st=[{c:'#D9A63E',p:0},{c:'#8A5A16',p:100}];
+  if(g.metallic>0){
+    const m=clamp(g.metallic,0,1);
+    const add=[];
+    const hi=sampleStops(st,26), lo=sampleStops(st,58), hi2=sampleStops(st,88);
+    add.push({c:shade(hi,1+0.55*m), p:26});
+    add.push({c:shade(lo,1-0.34*m), p:58});
+    add.push({c:shade(hi2,1+0.30*m), p:88});
+    st=st.concat(add).sort((a,b)=>a.p-b.p);
+  }
+  return st;
+}
+function buildDefs(S, F, ids){
+  const defs=mk('defs');
+  const g=S.gold, v=goldAngleVec(g.angle), stops=goldStopList(g);
+
+  const lg=mk(g.type==='radial'?'radialGradient':'linearGradient',
+    g.type==='radial' ? {id:ids.gold, cx:'50%', cy:'38%', r:'72%'} :
+                        {id:ids.gold, x1:v.x1, y1:v.y1, x2:v.x2, y2:v.y2});
+  stops.forEach(s=> lg.appendChild(mk('stop',{offset:nf(s.p,2)+'%','stop-color':s.c})));
+  defs.appendChild(lg);
+
+  /* fenycsik (shimmer / glow) - a gold gradiensre rarakott mozgo fenysav */
+  if(F.sweep!=null){
+    const sw=mk('linearGradient',{id:ids.sweep, x1:v.x1,y1:v.y1,x2:v.x2,y2:v.y2});
+    const p=F.sweep*1.6-0.3, w=0.16;
+    const band=[{o:clamp(p-w,0,1),a:0},{o:clamp(p,0,1),a:.85},{o:clamp(p+w,0,1),a:0}];
+    sw.appendChild(mk('stop',{offset:'0%','stop-color':'#FFF7DF','stop-opacity':'0'}));
+    band.forEach(b=> sw.appendChild(mk('stop',{offset:nf(b.o*100,2)+'%','stop-color':'#FFF7DF','stop-opacity':nf(b.a,3)})));
+    sw.appendChild(mk('stop',{offset:'100%','stop-color':'#FFF7DF','stop-opacity':'0'}));
+    defs.appendChild(sw);
+  }
+
+  /* gomb-arnyalatok melysegi savokban (5 db eleg, kicsi marad a fajl) */
+  if(S.helix.show){
+    for(let i=0;i<5;i++){
+      const k = 0.62 + (i/4)*0.72*(0.35+S.helix.shade);
+      const base = sampleStops(stops, 45);
+      const rg=mk('radialGradient',{id:ids.sph+i, cx:'34%', cy:'30%', r:'78%'});
+      rg.appendChild(mk('stop',{offset:'0%','stop-color':shade(sampleStops(stops,8), clamp(k*1.35,.2,1.9))}));
+      rg.appendChild(mk('stop',{offset:'46%','stop-color':shade(base, clamp(k,.2,1.7))}));
+      rg.appendChild(mk('stop',{offset:'100%','stop-color':shade(sampleStops(stops,96), clamp(k*0.68,.15,1.4))}));
+      defs.appendChild(rg);
+    }
+    if(S.helix.glow>0){
+      const f=mk('filter',{id:ids.glow, x:'-40%', y:'-40%', width:'180%', height:'180%'});
+      f.appendChild(mk('feGaussianBlur',{stdDeviation:nf(6+18*S.helix.glow,2), result:'b'}));
+      const m=mk('feMerge'); m.appendChild(mk('feMergeNode',{in:'b'})); m.appendChild(mk('feMergeNode',{in:'SourceGraphic'}));
+      f.appendChild(m); defs.appendChild(f);
+    }
+  }
+  return defs;
+}
+
+/* --- szoveg merese --- */
+function inkBox(el){ try{ return el.getBBox(); }catch(e){ return {x:0,y:0,width:0,height:0}; } }
+let _fitCache={};
+function clearFitCache(){ _fitCache={}; _vmCache={}; }
+
+/* A bongeszo getBBox()-a szovegnel a SORDOBOZT adja vissza (ascender..descender),
+   nem a valodi tintadobozt. A fuggoleges tordeleshez viszont a tinta kell, ezert
+   a Canvas2D actualBoundingBox metrikait hasznaljuk. */
+let _vmCache={};
+const _mctx = (typeof document!=='undefined') ? document.createElement('canvas').getContext('2d') : null;
+function vMetrics(family, weight, italic, size, text){
+  const key=family+'|'+weight+'|'+(italic?1:0)+'|'+nf(size,2)+'|'+text;
+  if(_vmCache[key]) return _vmCache[key];
+  let r={asc:size*0.72, desc:size*0.21};
+  if(_mctx){
+    try{
+      _mctx.font=(italic?'italic ':'')+weight+' '+size+'px '+cssFont(family);
+      const m=_mctx.measureText(text||'X');
+      if(isFinite(m.actualBoundingBoxAscent))
+        r={ asc:m.actualBoundingBoxAscent, desc:Math.max(0,m.actualBoundingBoxDescent) };
+    }catch(e){}
+  }
+  _vmCache[key]=r; return r;
+}
+
+function applyTextFit(txt, targetW){
+  if(!targetW || targetW<=0) return;
+  let tl = targetW;
+  for(let i=0;i<3;i++){
+    txt.setAttribute('textLength', nf(tl,2));
+    txt.setAttribute('lengthAdjust','spacing');
+    const b=inkBox(txt);
+    if(!b.width) break;
+    const err = targetW - b.width;
+    if(Math.abs(err) < 0.35) break;
+    tl += err;
+    if(tl < 10){ tl = 10; break; }
+  }
+  txt.setAttribute('textLength', nf(tl,2));
+}
+function solveFontSize(txt, targetW, lo, hi){
+  let a=lo, b=hi;
+  for(let i=0;i<22;i++){
+    const m=(a+b)/2;
+    txt.setAttribute('font-size', nf(m,3));
+    const w=inkBox(txt).width;
+    if(w>targetW) b=m; else a=m;
+    if(Math.abs(w-targetW)<0.3) break;
+  }
+  const s=(a+b)/2;
+  txt.setAttribute('font-size', nf(s,3));
+  return s;
+}
+const applyCase = (s,m)=> m==='upper'?String(s).toUpperCase() : m==='lower'?String(s).toLowerCase() : String(s);
+
+/* --- helix rajzolasa --- */
+function drawHelixGroup(id, list, ribbons, S, F, ids){
+  const g=mk('g',{id});
+  if(S.helix.glow>0) g.setAttribute('filter','url(#'+ids.glow+')');
+  ribbons.forEach(rb=>{
+    g.appendChild(mk('path',{ d:rb.d, fill:'none', stroke:'url(#'+ids.gold+')',
+      'stroke-width':nf(rb.w,2), 'stroke-opacity':nf(rb.opacity,2), 'stroke-linecap':'round' }));
+  });
+  const fade = t => F.threadMask>=1 ? 1 : clamp((F.threadMask-t)*9+0.15, 0, 1);
+  list.forEach(it=>{
+    const op = fade(it.t);
+    if(op<=0.01) return;
+    if(it.kind==='rung'){
+      g.appendChild(mk('line',{ x1:nf(it.x1,2),y1:nf(it.y1,2),x2:nf(it.x2,2),y2:nf(it.y2,2),
+        stroke:'url(#'+ids.gold+')','stroke-width':nf(it.w,2),'stroke-linecap':'round',
+        'stroke-opacity':nf(it.opacity*op,3) }));
+    } else if(it.kind==='sphere'){
+      const bin=clamp(Math.round((it.depth+1)/2*4),0,4);
+      g.appendChild(mk('circle',{ cx:nf(it.x,2), cy:nf(it.y,2), r:nf(it.r,2),
+        fill:'url(#'+ids.sph+bin+')', opacity: op<1?nf(op,3):null }));
+    } else if(it.kind==='cube'){
+      const faces=isoCube(it.x, it.y, it.size, it.yaw+F.cubeSpin, it.pitch);
+      const sub=mk('g', op<1?{opacity:nf(op,3)}:null);
+      const stops=goldStopList(S.gold);
+      faces.forEach(f=>{
+        const base=sampleStops(stops, 40);
+        sub.appendChild(mk('path',{ d:f.d, fill:shade(base, clamp(f.light*1.15,.18,1.75)),
+          stroke:shade(base,.55), 'stroke-width':nf(Math.max(.6,it.size*0.018),2),
+          'stroke-linejoin':'round' }));
+      });
+      g.appendChild(sub);
+    }
+  });
+  return g;
+}
+
+/* --- fo epito --- */
+function buildSVG(host, S, opts){
+  opts = opts||{};
+  const F = animFrame(S.anim, opts.animT||0);
+  const P = opts.prefix || 'dw';
+  const ids = { gold:P+'Gold', sweep:P+'Sweep', sph:P+'Sph', glow:P+'Glow',
+                mask:P+'Mask', clip:P+'Clip' };
+
+  const svg = mk('svg',{ xmlns:SVGNS, 'xmlns:xlink':'http://www.w3.org/1999/xlink',
+                         viewBox:'0 0 '+S.canvas.w+' '+S.canvas.h,
+                         width:S.canvas.w, height:S.canvas.h });
+  const ttl=mk('title'); ttl.textContent=(S.meta.name||'Darwin AI')+' logó'; svg.appendChild(ttl);
+  svg.appendChild(buildDefs(S,F,ids));
+
+  if(opts.bakeBG && S.canvas.bg!=='checker' && S.canvas.bg!=='transparent'){
+    const c = S.canvas.bg==='white'?'#FFFFFF' : S.canvas.bg==='black'?'#0A0A0A'
+            : S.canvas.bg==='brand'?'#111111' : S.canvas.bgColor;
+    svg.appendChild(mk('rect',{x:0,y:0,width:S.canvas.w,height:S.canvas.h,fill:c}));
+  }
+  const root = mk('g',{id:'logo_root'});
+  svg.appendChild(root);
+  host.appendChild(svg);
+
+  const goldRef='url(#'+ids.gold+')';
+  const blocks=[];   // { g, kind }
+
+  /* ---------- EMBLEMA ---------- */
+  let markG=null, markGeo=null;
+  if(S.mark.show){
+    markG = mk('g',{id:'mark_D'});
+    if(S.mark.mode==='font'){
+      const t=mk('text',{ x:0, y:0, 'font-family':cssFont(S.mark.font),
+        'font-weight':S.mark.weight, 'font-size':100, 'text-anchor':'middle', fill:S.mark.color });
+      t.textContent = S.mark.glyph||'D';
+      const holder=mk('g'); holder.appendChild(t); markG.appendChild(holder);
+      root.appendChild(markG);
+      const b0=inkBox(t);
+      const sc = b0.height>0 ? S.mark.height/b0.height : 1;
+      const scX = sc * (S.mark.width>0 && S.mark.fitBox ? (S.mark.width/(b0.width*sc)) : 1);
+      t.setAttribute('font-size', nf(100*sc,3));
+      const b1=inkBox(t);
+      holder.setAttribute('transform','translate('+nf(-b1.x,2)+','+nf(-b1.y,2)+')'
+        + (S.mark.slant? ' skewX('+nf(-S.mark.slant,2)+')':''));
+      markGeo = { w:b1.width, h:b1.height };
+      if(S.inner.show && S.inner.shape!=='none'){
+        const box={ x:S.mark.stem+(S.inner.offsetX||0), y:S.mark.topBar+(S.inner.offsetY||0),
+                    w:S.inner.w, h:S.inner.h };
+        const ip=innerShapePath(S.inner, box);
+        if(ip){
+          if(S.inner.mode==='knockout'){
+            const msk=mk('mask',{id:ids.mask, maskUnits:'userSpaceOnUse',
+              x:-40, y:-40, width:S.mark.width+80, height:S.mark.height+80});
+            msk.appendChild(mk('rect',{x:-40,y:-40,width:S.mark.width+80,height:S.mark.height+80,fill:'#fff'}));
+            msk.appendChild(mk('path',{d:ip.out(null,2), fill:'#000'}));
+            svg.querySelector('defs').appendChild(msk);
+            markG.setAttribute('mask','url(#'+ids.mask+')');
+          } else {
+            markG.appendChild(mk('path',{d:ip.out(null,2), fill:S.inner.color}));
+          }
+        }
+      }
+    } else {
+      markGeo = buildMark(S.mark, S.inner);
+      let d = markGeo.outer;
+      if(S.inner.show && markGeo.inner && S.inner.mode==='knockout') d += markGeo.inner;
+      const fill = S.mark.fillType==='gold' ? goldRef : S.mark.color;
+      const p = mk('path',{ id:'D_shape', d:d, 'fill-rule':'evenodd',
+                            fill:S.mark.strokeMode?'none':fill,
+                            opacity: S.mark.opacity<1?nf(S.mark.opacity,3):null });
+      if(S.mark.strokeMode){
+        p.setAttribute('stroke', fill);
+        p.setAttribute('stroke-width', nf(S.mark.strokeWidth,2));
+        p.setAttribute('stroke-linejoin','round');
+      }
+      if(F.markDraw<1){
+        const len = 2*(S.mark.width+S.mark.height)*1.35;
+        p.setAttribute('fill','none');
+        p.setAttribute('stroke', fill);
+        p.setAttribute('stroke-width', nf(Math.max(6,S.mark.strokeWidth*0.7),2));
+        p.setAttribute('stroke-dasharray', nf(len,1));
+        p.setAttribute('stroke-dashoffset', nf(len*(1-F.markDraw),1));
+      }
+      markG.appendChild(p);
+      if(S.inner.show && markGeo.inner && S.inner.mode==='fill')
+        markG.appendChild(mk('path',{id:'D_inner', d:markGeo.inner, fill:S.inner.color}));
+      root.appendChild(markG);
+    }
+
+    /* ---------- HELIX ---------- */
+    if(S.helix.show){
+      const hx = deepClone(S.helix);
+      if(F.helixShift){
+        const dx=hx.x2-hx.x1, dy=hx.y2-hx.y1;
+        const k=(F.helixShift%1);
+        hx.x1+=dx*k*0.14; hx.y1+=dy*k*0.14; hx.x2+=dx*k*0.14; hx.y2+=dy*k*0.14;
+      }
+      const H = buildHelix(hx, F.helixPhase);
+      const gb = drawHelixGroup('helix_back',  H.meta.back,  H.meta.rBack,  S, F, ids);
+      const gf = drawHelixGroup('helix_front', H.meta.front, H.meta.rFront, S, F, ids);
+      if(F.op.helix<1){ gb.setAttribute('opacity',nf(F.op.helix,3)); gf.setAttribute('opacity',nf(F.op.helix,3)); }
+      const wrap = mk('g',{id:'mark_group'});
+      root.appendChild(wrap);
+      wrap.appendChild(gb); wrap.appendChild(markG); wrap.appendChild(gf);
+      /* alapertelmezesben a helix "kilog" a kompozicion (mint a Cross.png-ben):
+         a tordelest tovabbra is maga a D hatarozza meg. */
+      blocks.push({ g:wrap, kind:'mark',
+                    measureEl: S.layout.helixBounds==='include' ? wrap : markG });
+    } else {
+      blocks.push({ g:markG, kind:'mark' });
+    }
+  }
+
+  /* ---------- SZOVEGEK ---------- */
+  const texts=[];
+  if(S.word.show){
+    const g=mk('g',{id:'wordmark_group'});
+    const t=mk('text',{ x:0,y:0,'text-anchor':'middle','font-family':cssFont(S.word.font),
+      'font-weight':S.word.weight, 'font-size':nf(S.word.size,2),
+      'letter-spacing':nf(S.word.tracking*S.word.size,3),
+      'font-style':S.word.italic?'italic':null, fill:S.word.color1 });
+    const s1=mk('tspan',{id:'Darwin'}); s1.textContent=applyCase(S.word.part1,S.word.caseMode);
+    const s2=mk('tspan',{id:'AI', fill:S.word.fill2==='gold'?goldRef:S.word.color2,
+      dx:nf(S.word.gapAI*S.word.size,2)});
+    s2.textContent=applyCase(S.word.part2,S.word.caseMode);
+    if(s1.textContent) t.appendChild(s1);
+    if(s2.textContent) t.appendChild(s2);
+    g.appendChild(t); root.appendChild(g);
+    texts.push({t,g,cfg:S.word,kind:'word'});
+    blocks.push({g,kind:'word'});
+  }
+  if(S.tag.show){
+    const g=mk('g',{id:'tagline_group'});
+    const t=mk('text',{ x:0,y:0,'text-anchor':'middle','font-family':cssFont(S.tag.font),
+      'font-weight':S.tag.weight,'font-size':nf(S.tag.size,2),
+      'letter-spacing':nf(S.tag.tracking*S.tag.size,3),
+      fill:S.tag.fillType==='gold'?goldRef:S.tag.color });
+    t.textContent=applyCase(S.tag.text,S.tag.caseMode);
+    g.appendChild(t); root.appendChild(g);
+    texts.push({t,g,cfg:S.tag,kind:'tag'});
+    blocks.push({g,kind:'tag'});
+  }
+  if(S.svc.show){
+    const g=mk('g',{id:'services_group'});
+    const t=mk('text',{ x:0,y:0,'text-anchor':'middle','font-family':cssFont(S.svc.font),
+      'font-weight':S.svc.weight,'font-size':nf(S.svc.size,2),
+      'letter-spacing':nf(S.svc.tracking*S.svc.size,3),
+      fill:S.svc.fillType==='gold'?goldRef:S.svc.color });
+    t.textContent=applyCase(S.svc.text,S.svc.caseMode);
+    g.appendChild(t); root.appendChild(g);
+    texts.push({t,g,cfg:S.svc,kind:'svc'});
+    blocks.push({g,kind:'svc'});
+  }
+
+  /* ---------- SZELESSEG-EGYEZTETES ---------- */
+  /* A binaris kereses draga, ezert az eredmenyt gyorsitotarazzuk: animacio
+     kozben a szoveg-parameterek nem valtoznak, igy kockankent nem kell ujraszamolni. */
+  const solved={};
+  if(S.layout.widthMode!=='auto' && texts.length){
+    let target = S.layout.textWidth;
+    if(S.layout.widthMode==='match'){
+      const w = texts.find(x=>x.kind==='word');
+      target = w ? inkBox(w.t).width : S.layout.textWidth;
+    }
+    texts.forEach(x=>{
+      if(S.layout.widthMode==='match' && x.kind==='word') return;
+      const c=x.cfg;
+      const key=[x.kind,c.font,c.weight,c.size,c.tracking,c.caseMode,c.italic?1:0,
+        x.kind==='word'?(c.part1+''+c.part2+''+c.gapAI):c.text,
+        nf(target,2), c.autoSize?1:0, S.layout.widthMode].join('|');
+      const hit=_fitCache[key];
+      if(c.autoSize){
+        /* 1) betumeret keresese a cel szelessegre  2) maradek hiba finomhangolasa betukozzel */
+        if(hit){ x.t.setAttribute('font-size', nf(hit.size,3));
+                 x.t.setAttribute('textLength', nf(hit.tl,2)); x.t.setAttribute('lengthAdjust','spacing'); }
+        else {
+          const v=solveFontSize(x.t, target, 6, 900);
+          applyTextFit(x.t, target);
+          _fitCache[key]={ size:v, tl:parseFloat(x.t.getAttribute('textLength'))||target };
+        }
+        solved[x.kind]=(_fitCache[key]||{}).size;
+      } else {
+        if(hit){ x.t.setAttribute('textLength', nf(hit.tl,2)); x.t.setAttribute('lengthAdjust','spacing'); }
+        else { applyTextFit(x.t, target);
+               _fitCache[key]={ size:parseFloat(x.t.getAttribute('font-size'))||c.size,
+                                tl:parseFloat(x.t.getAttribute('textLength'))||target }; }
+      }
+    });
+    if(Object.keys(_fitCache).length>400) clearFitCache();
+  }
+  texts.forEach(x=>{ const b=inkBox(x.t); x.t.setAttribute('x', nf(-(b.x+b.width/2),2)); });
+
+  /* ---------- ELRENDEZES ---------- */
+  const gaps={ word:S.layout.gapMark, tag:S.layout.gapTag, svc:S.layout.gapSvc };
+  const boxes = blocks.map(b=>{
+    let box=inkBox(b.measureEl||b.g);
+    const ti=texts.find(t=>t.kind===b.kind);
+    if(ti){                                   // szoveg: valodi tintadoboz kell
+      const c=ti.cfg;
+      const fs=parseFloat(ti.t.getAttribute('font-size'))||c.size;
+      const str = b.kind==='word' ? applyCase(c.part1,c.caseMode)+applyCase(c.part2,c.caseMode)
+                                  : applyCase(c.text,c.caseMode);
+      const vm=vMetrics(c.font, c.weight, !!c.italic, fs, str);
+      box={ x:box.x, y:-vm.asc, width:box.width, height:vm.asc+vm.desc };
+    }
+    return { b, box, rect:null };
+  });
+  const stack = S.layout.mode!=='horizontal';
+  const textBlocks = boxes.filter(o=>o.b.kind!=='mark');
+  const markBlock  = boxes.find(o=>o.b.kind==='mark');
+
+  function place(o, ty, dx){
+    const dy = ty - o.box.y + (F.dy[o.b.kind]||0);
+    if(dx==null) dx = -(o.box.x + o.box.width/2);
+    o.b.g.setAttribute('transform','translate('+nf(dx,2)+','+nf(dy,2)+')');
+    if(F.op[o.b.kind]!=null && F.op[o.b.kind]<1) o.b.g.setAttribute('opacity',nf(F.op[o.b.kind],3));
+    o.rect={ x:dx+o.box.x, y:ty, w:o.box.width, h:o.box.height };
+  }
+
+  if(stack){
+    let y=0, first=true;
+    boxes.forEach(o=>{
+      const sh = (o.b.kind==='mark' && S.layout.markShift) ? S.layout.markShift : 0;
+      const dx = -(o.box.x + o.box.width/2) + sh;
+      if(first){ place(o, 0, dx); y=o.box.height; first=false; }
+      else { y += (gaps[o.b.kind]!=null ? gaps[o.b.kind] : 30); place(o, y, dx); y += o.box.height; }
+    });
+  } else {
+    let ty=0, textH=0;
+    textBlocks.forEach((o,i)=>{ if(i) ty += (gaps[o.b.kind]!=null?gaps[o.b.kind]:30); o.ty=ty; ty+=o.box.height; });
+    textH=ty;
+    const markH = markBlock?markBlock.box.height:0;
+    const H=Math.max(textH, markH);
+    let tw=0; textBlocks.forEach(o=>tw=Math.max(tw,o.box.width));
+    const mw = markBlock?markBlock.box.width:0;
+    const totalW = mw + (markBlock&&textBlocks.length?S.layout.horizGap:0) + tw;
+    if(markBlock) place(markBlock, (H-markH)/2, -totalW/2-markBlock.box.x);
+    const off=(H-textH)/2;
+    textBlocks.forEach(o=>{
+      const dx = -totalW/2 + mw + (markBlock?S.layout.horizGap:0) - o.box.x
+               + (S.layout.horizTextAlign==='left' ? 0 : (tw-o.box.width)/2);
+      place(o, o.ty+off, dx);
+    });
+  }
+
+  /* ---------- VASZONRA ILLESZTES ---------- */
+  if(F.markScale!==1 && markBlock && markBlock.rect){
+    const r=markBlock.rect, cx=r.x+r.w/2, cy=r.y+r.h/2, k=F.markScale;
+    const tr=markBlock.b.g.getAttribute('transform')||'';
+    markBlock.b.g.setAttribute('transform','translate('+nf(cx,2)+','+nf(cy,2)+') scale('+nf(k,4)+') translate('+nf(-cx,2)+','+nf(-cy,2)+') '+tr);
+    markBlock.rect={ x:cx-r.w*k/2, y:cy-r.h*k/2, w:r.w*k, h:r.h*k };
+  }
+  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  boxes.forEach(o=>{ if(!o.rect) return;
+    x0=Math.min(x0,o.rect.x); y0=Math.min(y0,o.rect.y);
+    x1=Math.max(x1,o.rect.x+o.rect.w); y1=Math.max(y1,o.rect.y+o.rect.h); });
+  if(x0>x1){ x0=0;y0=0;x1=1;y1=1; }
+  const cb={ x:x0, y:y0, width:x1-x0, height:y1-y0 };
+  const pad = S.layout.pad||0;
+  const availW = S.canvas.w-2*pad, availH = S.canvas.h-2*pad;
+  let sc = 1;
+  const fm = S.layout.fitMode||'shrink';
+  if(fm!=='none' && cb.width>0 && cb.height>0){
+    sc = Math.min(availW/cb.width, availH/cb.height);
+    if(fm==='shrink') sc=Math.min(1,sc);
+  }
+  sc *= (S.layout.zoom||1);
+  const tx = S.canvas.w/2 - (cb.x+cb.width/2)*sc + (S.layout.offsetX||0);
+  const ty = S.canvas.h/2 - (cb.y+cb.height/2)*sc + (S.layout.offsetY||0);
+  root.setAttribute('transform','translate('+nf(tx,2)+','+nf(ty,2)+') scale('+nf(sc,5)+')');
+
+  /* ---------- VAGAS ---------- */
+  if(S.canvas.trim){
+    const p=S.canvas.trimPad||0;
+    const x0=tx+cb.x*sc-p, y0=ty+cb.y*sc-p, w0=cb.width*sc+2*p, h0=cb.height*sc+2*p;
+    svg.setAttribute('viewBox', nf(x0,2)+' '+nf(y0,2)+' '+nf(w0,2)+' '+nf(h0,2));
+    svg.setAttribute('width', nf(w0,1)); svg.setAttribute('height', nf(h0,1));
+  }
+
+  /* ---------- SEGEDVONALAK (csak elonezet) ---------- */
+  if(!opts.forExport) addGuides(svg, root, S, cb, sc, tx, ty);
+
+  svg.__meta = { contentBox:cb, scale:sc, solved, markGeo,
+                 lineW: texts.map(x=>({k:x.kind,w:inkBox(x.t).width})) };
+  return svg;
+}
+
+function addGuides(svg, root, S, cb, sc, tx, ty){
+  const G=S.guides;
+  if(!G.grid && !G.bbox && !G.clearspace && !G.baseline) return;
+  const g=mk('g',{id:'guides','pointer-events':'none'});
+  const col='rgba(64,160,255,.55)';
+  if(G.grid){
+    const step=S.canvas.w/12;
+    for(let i=1;i<12;i++){
+      g.appendChild(mk('line',{x1:i*step,y1:0,x2:i*step,y2:S.canvas.h,stroke:'rgba(120,140,170,.22)','stroke-width':1}));
+      g.appendChild(mk('line',{x1:0,y1:i*step,x2:S.canvas.w,y2:i*step,stroke:'rgba(120,140,170,.22)','stroke-width':1}));
+    }
+    g.appendChild(mk('line',{x1:S.canvas.w/2,y1:0,x2:S.canvas.w/2,y2:S.canvas.h,stroke:'rgba(233,87,107,.45)','stroke-width':1}));
+    g.appendChild(mk('line',{x1:0,y1:S.canvas.h/2,x2:S.canvas.w,y2:S.canvas.h/2,stroke:'rgba(233,87,107,.45)','stroke-width':1}));
+  }
+  if(G.bbox){
+    g.appendChild(mk('rect',{x:nf(tx+cb.x*sc,2),y:nf(ty+cb.y*sc,2),width:nf(cb.width*sc,2),height:nf(cb.height*sc,2),
+      fill:'none',stroke:col,'stroke-width':1.5,'stroke-dasharray':'8 5'}));
+    root.querySelectorAll(':scope > g').forEach(ch=>{
+      const b=inkBox(ch); if(!b.width) return;
+      g.appendChild(mk('rect',{x:nf(tx+(b.x)*sc,2),y:nf(ty+(b.y)*sc,2),
+        width:nf(b.width*sc,2),height:nf(b.height*sc,2),
+        fill:'none',stroke:'rgba(78,201,138,.5)','stroke-width':1,'stroke-dasharray':'4 4'}));
+    });
+  }
+  if(G.clearspace){
+    const cs=S.mark.stem*0.55*sc;
+    g.appendChild(mk('rect',{x:nf(tx+cb.x*sc-cs,2),y:nf(ty+cb.y*sc-cs,2),
+      width:nf(cb.width*sc+2*cs,2),height:nf(cb.height*sc+2*cs,2),
+      fill:'rgba(217,166,62,.07)',stroke:'rgba(217,166,62,.55)','stroke-width':1.5}));
+  }
+  if(G.baseline){
+    root.querySelectorAll('text').forEach(t=>{
+      const b=t.getBoundingClientRect();
+      const ctm=t.getCTM(); if(!ctm) return;
+      const pt=svg.createSVGPoint(); pt.x=0; pt.y=0;
+      const p=pt.matrixTransform(ctm);
+      g.appendChild(mk('line',{x1:0,y1:nf(p.y,2),x2:S.canvas.w,y2:nf(p.y,2),
+        stroke:'rgba(217,166,62,.5)','stroke-width':1,'stroke-dasharray':'3 6'}));
+    });
+  }
+  svg.appendChild(g);
+}
+
+function cssFont(name){
+  if(!name) return 'sans-serif';
+  const f=DW_FONTS.find(f=>f.name===name);
+  const fb = f && f.fallback ? f.fallback : 'sans-serif';
+  return '"'+name+'", '+fb;
+}
+
+/* ==========================================================================
+   BETUTIPUSOK
+   ========================================================================== */
+const SANS = 'Helvetica Neue, Arial, sans-serif';
+const DW_FONTS = [
+  {name:'Archivo Black',      g:1, w:[400],                     fallback:SANS, tag:'display'},
+  {name:'Anton',              g:1, w:[400],                     fallback:SANS, tag:'display'},
+  {name:'Bebas Neue',         g:1, w:[400],                     fallback:SANS, tag:'display'},
+  {name:'Syne',               g:1, w:[400,500,600,700,800],     fallback:SANS, tag:'display'},
+  {name:'Montserrat',         g:1, w:[300,400,500,600,700,800,900], fallback:SANS, tag:'both'},
+  {name:'Poppins',            g:1, w:[300,400,500,600,700,800,900], fallback:SANS, tag:'both'},
+  {name:'Inter',              g:1, w:[300,400,500,600,700,800,900], fallback:SANS, tag:'both'},
+  {name:'Manrope',            g:1, w:[300,400,500,600,700,800], fallback:SANS, tag:'both'},
+  {name:'Outfit',             g:1, w:[300,400,500,600,700,800,900], fallback:SANS, tag:'both'},
+  {name:'Sora',               g:1, w:[300,400,500,600,700,800], fallback:SANS, tag:'both'},
+  {name:'Space Grotesk',      g:1, w:[300,400,500,600,700],     fallback:SANS, tag:'both'},
+  {name:'Plus Jakarta Sans',  g:1, w:[300,400,500,600,700,800], fallback:SANS, tag:'both'},
+  {name:'Figtree',            g:1, w:[300,400,500,600,700,800,900], fallback:SANS, tag:'both'},
+  {name:'Lexend',             g:1, w:[300,400,500,600,700,800,900], fallback:SANS, tag:'both'},
+  {name:'Urbanist',           g:1, w:[300,400,500,600,700,800,900], fallback:SANS, tag:'both'},
+  {name:'DM Sans',            g:1, w:[400,500,700,900],         fallback:SANS, tag:'both'},
+  {name:'Work Sans',          g:1, w:[300,400,500,600,700,800,900], fallback:SANS, tag:'both'},
+  {name:'Rubik',              g:1, w:[300,400,500,600,700,800,900], fallback:SANS, tag:'both'},
+  {name:'Barlow',             g:1, w:[300,400,500,600,700,800,900], fallback:SANS, tag:'both'},
+  {name:'Raleway',            g:1, w:[300,400,500,600,700,800,900], fallback:SANS, tag:'both'},
+  {name:'Nunito Sans',        g:1, w:[300,400,600,700,800,900], fallback:SANS, tag:'text'},
+  {name:'Mulish',             g:1, w:[300,400,500,600,700,800,900], fallback:SANS, tag:'text'},
+  {name:'Oswald',             g:1, w:[300,400,500,600,700],     fallback:SANS, tag:'display'},
+  {name:'Chivo',              g:1, w:[300,400,500,600,700,800,900], fallback:SANS, tag:'both'},
+  {name:'Red Hat Display',    g:1, w:[400,500,600,700,800,900], fallback:SANS, tag:'both'},
+  {name:'Epilogue',           g:1, w:[300,400,500,600,700,800,900], fallback:SANS, tag:'both'},
+  {name:'Archivo',            g:1, w:[300,400,500,600,700,800,900], fallback:SANS, tag:'both'},
+  {name:'Jost',               g:1, w:[300,400,500,600,700,800,900], fallback:SANS, tag:'both'},
+  {name:'Cormorant Garamond', g:1, w:[300,400,500,600,700],     fallback:'Georgia, serif', tag:'display'},
+  {name:'Playfair Display',   g:1, w:[400,500,600,700,800,900], fallback:'Georgia, serif', tag:'display'},
+  {name:'Arial',              g:0, w:[400,700],   fallback:'Helvetica, sans-serif', tag:'both'},
+  {name:'Arial Black',        g:0, w:[400,900],   fallback:'Helvetica, sans-serif', tag:'display'},
+  {name:'Impact',             g:0, w:[400],       fallback:'sans-serif', tag:'display'},
+  {name:'Georgia',            g:0, w:[400,700],   fallback:'serif', tag:'text'},
+  {name:'Verdana',            g:0, w:[400,700],   fallback:'sans-serif', tag:'text'}
+];
+function fontDef(n){ return DW_FONTS.find(f=>f.name===n) || DW_FONTS[0]; }
+function nearestWeight(fname, w){
+  const f=fontDef(fname); let best=f.w[0], d=1e9;
+  f.w.forEach(x=>{ const dd=Math.abs(x-w); if(dd<d){d=dd;best=x;} });
+  return best;
+}
+
+const _fontLinks={};
+function loadFont(name, weights){
+  const f=fontDef(name);
+  if(!f.g) return Promise.resolve();
+  const ws=(weights&&weights.length?weights:f.w).filter(w=>f.w.indexOf(w)>=0);
+  const key=name+':'+ws.join(',');
+  if(_fontLinks[key]) return _fontLinks[key];
+  const fam=name.replace(/ /g,'+');
+  const href='https://fonts.googleapis.com/css2?family='+fam+':wght@'+(ws.length?ws.join(';'):'400')+'&display=swap';
+  if(!document.querySelector('link[data-dwf="'+key+'"]')){
+    const l=document.createElement('link');
+    l.rel='stylesheet'; l.href=href; l.setAttribute('data-dwf',key);
+    document.head.appendChild(l);
+  }
+  _fontLinks[key]=new Promise(res=>{
+    const to=setTimeout(res, 7000);
+    Promise.allSettled(ws.map(w=>document.fonts.load(w+' 120px "'+name+'"')))
+      .then(()=>document.fonts.ready).then(()=>{clearTimeout(to);res();})
+      .catch(()=>{clearTimeout(to);res();});
+  });
+  return _fontLinks[key];
+}
+function fontsInUse(S){
+  const out=[];
+  const add=(n,w)=>{ if(!n) return; const e=out.find(o=>o.name===n);
+    if(e){ if(e.weights.indexOf(w)<0) e.weights.push(w); } else out.push({name:n,weights:[w]}); };
+  if(S.mark.show && S.mark.mode==='font') add(S.mark.font, nearestWeight(S.mark.font,S.mark.weight));
+  if(S.word.show) add(S.word.font, nearestWeight(S.word.font,S.word.weight));
+  if(S.tag.show)  add(S.tag.font,  nearestWeight(S.tag.font,S.tag.weight));
+  if(S.svc.show)  add(S.svc.font,  nearestWeight(S.svc.font,S.svc.weight));
+  return out;
+}
+function charsInUse(S){
+  let s='';
+  if(S.mark.show && S.mark.mode==='font') s+=S.mark.glyph||'D';
+  if(S.word.show) s+=applyCase(S.word.part1,S.word.caseMode)+applyCase(S.word.part2,S.word.caseMode);
+  if(S.tag.show)  s+=applyCase(S.tag.text,S.tag.caseMode);
+  if(S.svc.show)  s+=applyCase(S.svc.text,S.svc.caseMode);
+  return Array.from(new Set(Array.from(s))).join('');
+}
+
+/* ==========================================================================
+   EXPORT
+   ========================================================================== */
+function serializeSVG(svg){
+  const c=svg.cloneNode(true);
+  c.querySelectorAll('#guides').forEach(n=>n.remove());
+  c.setAttribute('xmlns',SVGNS);
+  let s=new XMLSerializer().serializeToString(c);
+  s=s.replace(/ xmlns:xlink="[^"]*"/g,'').replace(/xmlns:NS\d+="[^"]*"/g,'').replace(/NS\d+:/g,'');
+  return '<?xml version="1.0" encoding="UTF-8"?>\n'+s;
+}
+function downloadBlob(name, blob){
+  const u=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=u; a.download=name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(u), 4000);
+}
+function downloadText(name, text, mime){
+  downloadBlob(name, new Blob([text],{type:(mime||'text/plain')+';charset=utf-8'}));
+}
+function copyToClipboard(t){
+  if(navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t);
+  return new Promise((res,rej)=>{
+    const ta=document.createElement('textarea'); ta.value=t;
+    ta.style.position='fixed'; ta.style.left='-9999px';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); res(); }catch(e){ rej(e); }
+    ta.remove();
+  });
+}
+
+/* --- font beagyazas base64 @font-face-kent (PNG exporthoz kotelezo) --- */
+const _fontCache={};
+async function fetchEmbeddedFontCSS(list, chars){
+  const out=[];
+  for(const f of list){
+    const def=fontDef(f.name);
+    if(!def.g) continue;
+    for(const w of f.weights){
+      const key=f.name+'|'+w+'|'+chars;
+      if(_fontCache[key]===null) continue;
+      if(_fontCache[key]){ out.push(_fontCache[key]); continue; }
+      try{
+        const url='https://fonts.googleapis.com/css2?family='+f.name.replace(/ /g,'+')
+                 +':wght@'+w+'&text='+encodeURIComponent(chars||'');
+        const css=await (await fetch(url)).text();
+        const m=css.match(/url\((https:\/\/[^)]+)\)\s*format\(['"]?woff2['"]?\)/);
+        if(!m) throw new Error('nincs woff2');
+        const buf=await (await fetch(m[1])).arrayBuffer();
+        let bin=''; const bytes=new Uint8Array(buf);
+        for(let i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]);
+        const b64=btoa(bin);
+        const face='@font-face{font-family:"'+f.name+'";font-style:normal;font-weight:'+w
+                 +';src:url(data:font/woff2;base64,'+b64+') format("woff2");}';
+        _fontCache[key]=face; out.push(face);
+      }catch(e){ _fontCache[key]=null; }
+    }
+  }
+  return out.join('\n');
+}
+function injectStyle(svgText, css){
+  if(!css) return svgText;
+  const i=svgText.indexOf('<defs');
+  const block='<style type="text/css"><![CDATA[\n'+css+'\n]]></style>';
+  if(i<0) return svgText.replace(/(<svg[^>]*>)/, '$1'+block);
+  return svgText.slice(0,i)+block+svgText.slice(i);
+}
+
+async function rasterize(svgText, w, h, bg){
+  return new Promise((res,rej)=>{
+    const blob=new Blob([svgText],{type:'image/svg+xml;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const img=new Image();
+    img.onload=()=>{
+      try{
+        const cv=document.createElement('canvas'); cv.width=Math.max(1,Math.round(w)); cv.height=Math.max(1,Math.round(h));
+        const cx=cv.getContext('2d');
+        if(bg && bg!=='transparent'){ cx.fillStyle=bg; cx.fillRect(0,0,cv.width,cv.height); }
+        cx.drawImage(img,0,0,cv.width,cv.height);
+        URL.revokeObjectURL(url);
+        cv.toBlob(b=> b?res(b):rej(new Error('A PNG előállítása nem sikerült.')), 'image/png');
+      }catch(e){ URL.revokeObjectURL(url); rej(e); }
+    };
+    img.onerror=()=>{ URL.revokeObjectURL(url); rej(new Error('Az SVG nem tölthető be képként.')); };
+    img.src=url;
+  });
+}
+
+/* --- konnyu SVG tisztitas: szamok kerekitese, ures csoportok eldobasa ---
+   FONTOS: az onzaro <g .../> NEM nyitotag. Ha nyitotagkent kezelnenk, a
+   mogotte allo </g>-t (ami a SZULO zarotagja) torolnenk el -> tonkremegy az XML.
+   Vegul mindig visszaellenorizzuk: ha az eredmeny nem parszolhato, az eredetit adjuk. */
+function optimizeSVG(t, prec){
+  const p = prec==null?2:prec;
+  const src = t;
+  try{
+    t = t.replace(/<!--[\s\S]*?-->/g,'');
+    t = t.replace(/\s+(\r?\n)/g,'$1');
+    t = t.replace(/<g([^>]*)>\s*<\/g>/g, (m,a)=> /\/\s*$/.test(a) ? m : '');
+    t = t.replace(/(-?\d+\.\d{3,})/g, m=>{
+      const v=parseFloat(m); if(!isFinite(v)) return m;
+      let s=v.toFixed(p);
+      if(s.indexOf('.')>=0) s=s.replace(/0+$/,'').replace(/\.$/,'');
+      return s==='-0'?'0':s;
+    });
+    if(typeof DOMParser!=='undefined'){
+      const d=new DOMParser().parseFromString(t,'image/svg+xml');
+      if(d.querySelector('parsererror')) return src;
+    }
+    return t;
+  }catch(e){ return src; }
+}
+
+/* ==========================================================================
+   ELOZMENY (undo / redo)
+   ========================================================================== */
+function makeHistory(limit){
+  limit=limit||150;
+  let st=[], idx=-1, lastLbl='', lastT=0;
+  return {
+    push(state,label,now){
+      now = now==null ? Date.now() : now;
+      const snap=deepClone(state);
+      if(idx>=0 && label && label===lastLbl && now-lastT<650){ st[idx]={s:snap,l:label}; lastT=now; return; }
+      st=st.slice(0,idx+1); st.push({s:snap,l:label||''});
+      if(st.length>limit) st.shift();
+      idx=st.length-1; lastLbl=label||''; lastT=now;
+    },
+    undo(){ if(idx<=0) return null; idx--; lastLbl=''; return deepClone(st[idx].s); },
+    redo(){ if(idx>=st.length-1) return null; idx++; lastLbl=''; return deepClone(st[idx].s); },
+    canUndo(){ return idx>0; }, canRedo(){ return idx<st.length-1; },
+    reset(state){ st=[{s:deepClone(state),l:'induló'}]; idx=0; lastLbl=''; },
+    size(){ return st.length; }
+  };
+}
+
+/* ==========================================================================
+   VERZIOTAR  (localStorage, memoria tartalekkal)
+   ========================================================================== */
+const DW_STORE_KEY='darwin-logo-studio-v1';
+function makeStore(){
+  let mem=null, persistent=true, lastError='';
+  let counter=0;
+  function raw(){
+    if(mem) return mem;
+    try{
+      const s=localStorage.getItem(DW_STORE_KEY);
+      mem = s ? JSON.parse(s) : {versions:[], seq:0};
+      if(!Array.isArray(mem.versions)) mem.versions=[];
+    }catch(e){ mem={versions:[],seq:0}; persistent=false; lastError='A localStorage nem elérhető – a mentések csak a lap bezárásáig élnek.'; }
+    return mem;
+  }
+  function flush(){
+    if(!persistent) return false;
+    try{ localStorage.setItem(DW_STORE_KEY, JSON.stringify(mem)); return true; }
+    catch(e){
+      const pruned = api.prune(3.6*1024*1024);
+      try{ localStorage.setItem(DW_STORE_KEY, JSON.stringify(mem)); lastError=pruned?'Helyhiány miatt a legrégebbi, nem rögzített verziók törlődtek.':''; return true; }
+      catch(e2){ persistent=false; lastError='Megtelt a böngésző tárhelye – exportáld a verziókat JSON-ba!'; return false; }
+    }
+  }
+  function newId(){
+    raw(); mem.seq=(mem.seq||0)+1; counter++;
+    return 'v'+mem.seq.toString(36)+'-'+Date.now().toString(36)+'-'+Math.floor(Math.random()*1e6).toString(36);
+  }
+  const api={
+    get persistent(){ return persistent; },
+    get lastError(){ return lastError; },
+    clearError(){ lastError=''; },
+    list(){ return raw().versions.slice().sort((a,b)=> (b.pinned?1:0)-(a.pinned?1:0) || b.updatedAt-a.updatedAt ); },
+    get(id){ return raw().versions.find(v=>v.id===id)||null; },
+    save(state, info){
+      raw();
+      const now=Date.now();
+      const v={ id:newId(), name:(info&&info.name)||'Verzió', note:(info&&info.note)||'',
+                tags:(info&&info.tags)||[], thumb:(info&&info.thumb)||'',
+                createdAt:now, updatedAt:now, pinned:false, appVersion:APP_VERSION,
+                state:deepClone(state) };
+      mem.versions.push(v); flush(); return v;
+    },
+    update(id,patch){
+      raw(); const v=mem.versions.find(x=>x.id===id); if(!v) return null;
+      Object.assign(v,patch); v.updatedAt=Date.now(); flush(); return v;
+    },
+    remove(id){ raw(); const i=mem.versions.findIndex(v=>v.id===id); if(i<0) return false;
+      mem.versions.splice(i,1); flush(); return true; },
+    duplicate(id){ const v=api.get(id); if(!v) return null;
+      return api.save(v.state,{name:v.name+' másolat', note:v.note, tags:(v.tags||[]).slice(), thumb:v.thumb}); },
+    togglePin(id){ const v=api.get(id); if(!v) return null; return api.update(id,{pinned:!v.pinned}); },
+    exportAll(){ return JSON.stringify({app:'darwin-logo-studio', appVersion:APP_VERSION,
+      exportedAt:new Date().toISOString(), versions:raw().versions}, null, 2); },
+    importAll(text, merge){
+      let d; try{ d=JSON.parse(text); }catch(e){ throw new Error('Hibás JSON fájl.'); }
+      const arr = Array.isArray(d) ? d : (d.versions||[]);
+      if(!Array.isArray(arr)) throw new Error('Nem található verziólista a fájlban.');
+      raw();
+      if(!merge) mem.versions=[];
+      let n=0;
+      arr.forEach(v=>{
+        if(!v || typeof v!=='object' || !v.state) return;
+        const nv={ id:newId(), name:String(v.name||'Importált'), note:String(v.note||''),
+          tags:Array.isArray(v.tags)?v.tags:[], thumb:String(v.thumb||''),
+          createdAt:+v.createdAt||Date.now(), updatedAt:+v.updatedAt||Date.now(),
+          pinned:!!v.pinned, appVersion:APP_VERSION, state:migrate(v.state) };
+        mem.versions.push(nv); n++;
+      });
+      flush(); return n;
+    },
+    clearAll(){ raw(); mem.versions=[]; flush(); },
+    usageBytes(){ try{ return JSON.stringify(raw()).length; }catch(e){ return 0; } },
+    prune(maxBytes){
+      raw(); let removed=false;
+      const byAge=mem.versions.filter(v=>!v.pinned).sort((a,b)=>a.updatedAt-b.updatedAt);
+      for(const v of byAge){ if(api.usageBytes()<=maxBytes) break; if(v.thumb){ v.thumb=''; removed=true; } }
+      for(const v of byAge){ if(api.usageBytes()<=maxBytes) break;
+        const i=mem.versions.indexOf(v); if(i>=0){ mem.versions.splice(i,1); removed=true; } }
+      return removed;
+    }
+  };
+  return api;
+}
+/** Regi mentesek felhozatala az aktualis allapotsemara. */
+function migrate(s){
+  const out=deepMerge(DEFAULTS, s||{});
+  if(out.gold && !Array.isArray(out.gold.stops)) out.gold.stops=deepClone(DEFAULTS.gold.stops);
+  out.gold.stops=out.gold.stops.filter(x=>x&&typeof x.c==='string').map(x=>({c:x.c,p:clamp(+x.p||0,0,100)}));
+  if(out.gold.stops.length<2) out.gold.stops=deepClone(DEFAULTS.gold.stops);
+  return out;
+}
+
+/* ==========================================================================
+   PRESETEK  (reszleges allapot-foltok)
+   ========================================================================== */
+const GOLD_PRESETS = [
+  {id:'kep',    label:'Kép szerinti',  stops:[{c:'#F2BC5E',p:0},{c:'#B47D2B',p:50},{c:'#7F4B05',p:100}]},
+  {id:'brief',  label:'Brief arany',   stops:[{c:'#F3D37A',p:0},{c:'#D9A63E',p:50},{c:'#B67A22',p:100}]},
+  {id:'melyar', label:'Mély arany',    stops:[{c:'#E8C87A',p:0},{c:'#B67A22',p:46},{c:'#6B3F08',p:100}]},
+  {id:'pezsgo', label:'Pezsgő',        stops:[{c:'#FBF0D2',p:0},{c:'#E4C98E',p:52},{c:'#C0A066',p:100}]},
+  {id:'rose',   label:'Rozéarany',     stops:[{c:'#F7D7C6',p:0},{c:'#D79878',p:50},{c:'#A55F42',p:100}]},
+  {id:'platina',label:'Platina',       stops:[{c:'#F4F6F8',p:0},{c:'#BFC6CE',p:50},{c:'#7C858F',p:100}]},
+  {id:'bronz',  label:'Bronz',         stops:[{c:'#E0A878',p:0},{c:'#A96A33',p:50},{c:'#5E3410',p:100}]},
+  {id:'lapos',  label:'Lapos arany',   stops:[{c:'#D9A63E',p:0},{c:'#D9A63E',p:100}]},
+  {id:'ezust',  label:'Ezüst',         stops:[{c:'#FFFFFF',p:0},{c:'#C9CED6',p:48},{c:'#868D98',p:100}]},
+  {id:'smaragd',label:'Smaragd',       stops:[{c:'#8FE8C0',p:0},{c:'#1F9D6B',p:52},{c:'#0A4F35',p:100}]}
+];
+
+const DW_PRESETS = [
+  { id:'simple', label:'Eredeti · Simple', note:'A Simple.png pixelpontos vektoros mása.',
+    patch:{ helix:{show:false}, mark:{mode:'geo',height:640,width:659,stem:176,topBar:183,flatRatio:0.575,
+      roundness:2.36,cornerTL:0,cornerBL:0,slant:0,fillType:'solid',color:'#0A0A0A',strokeMode:false,opacity:1},
+      inner:{show:true,shape:'square',w:286,h:290,offsetX:0,offsetY:0,radius:0,rotate:0,mode:'knockout'},
+      layout:{mode:'stack',gapMark:40,gapTag:29,gapSvc:27,textWidth:961,widthMode:'fixed',zoom:1,pad:0},
+      canvas:{w:1254,h:1254,trim:false}, anim:{mode:'none'} } },
+
+  { id:'cross', label:'Eredeti · Cross', note:'Helixes storytelling változat, a D-n áttörő DNS-lánccal.',
+    patch:{ helix:{show:true,layer:'through',thread:0.52,x1:-161,y1:583,x2:782,y2:135,turns:3.1,amp:66,
+      ampGrow:2.0,nodes:15,nodeSize:9,nodeGrow:2.6,rungs:15,cubes:5,cubeSize:26,cubeGrow:2.6,glow:0.3,tilt:18},
+      mark:{mode:'geo',fillType:'solid',color:'#0A0A0A'}, anim:{mode:'helixSpin'} } },
+
+  { id:'corporate', label:'Letisztult · corporate', note:'Vékonyabb szár, semlegesebb arány, nyugodt tipó.',
+    patch:{ helix:{show:false}, mark:{stem:150,topBar:168,roundness:2.2,flatRatio:0.56},
+      inner:{w:300,h:300,radius:0}, word:{font:'Montserrat',weight:800,tracking:-0.02},
+      tag:{font:'Montserrat',weight:400,tracking:0.34}, svc:{font:'Montserrat',weight:600},
+      layout:{gapMark:48,gapTag:32,gapSvc:28} } },
+
+  { id:'brutal', label:'Vastag · brutál', note:'Maximális tömeg, kis belső négyzet, erős display tipó.',
+    patch:{ mark:{stem:230,topBar:225,roundness:2.9,flatRatio:0.6,height:660},
+      inner:{w:210,h:214,radius:0}, word:{font:'Archivo Black',weight:400,tracking:-0.03},
+      tag:{weight:700,tracking:0.22}, svc:{font:'Poppins',weight:700} } },
+
+  { id:'elegans', label:'Vékony · elegáns', note:'Kontúros D, finom talpas wordmark, tágas térközök.',
+    patch:{ mark:{strokeMode:true,strokeWidth:16,stem:150,topBar:160,roundness:2.1},
+      inner:{w:300,h:306}, word:{font:'Playfair Display',weight:600,tracking:0.01},
+      tag:{font:'Jost',weight:300,tracking:0.42}, svc:{font:'Jost',weight:500},
+      layout:{gapMark:58,gapTag:36,gapSvc:30} } },
+
+  { id:'kerek', label:'Kerek · barátságos', note:'Lekerekített sarkok, kör alakú belső forma.',
+    patch:{ mark:{roundness:2.0,cornerTL:120,cornerBL:120,stem:180},
+      inner:{shape:'circle',w:300,h:300}, word:{font:'Poppins',weight:700},
+      tag:{font:'Poppins',weight:400}, svc:{font:'Poppins',weight:600} } },
+
+  { id:'tech', label:'Szögletes · tech', note:'Squircle hasas rész, monolit tömb, rácsos érzet.',
+    patch:{ mark:{roundness:4.2,flatRatio:0.52,stem:186,topBar:190},
+      inner:{shape:'square',w:284,h:284,radius:0},
+      word:{font:'Space Grotesk',weight:700,tracking:-0.01},
+      tag:{font:'Space Grotesk',weight:400,tracking:0.36}, svc:{font:'Space Grotesk',weight:600} } },
+
+  { id:'mono', label:'Monokróm fekete', note:'Arany nélkül – nyomdai egyszínű változat.',
+    patch:{ word:{fill2:'solid',color2:'#0A0A0A'}, svc:{fillType:'solid',color:'#0A0A0A'},
+      tag:{fillType:'solid',color:'#0A0A0A'} } },
+
+  { id:'inverz', label:'Inverz · sötét háttérre', note:'Fehér D és wordmark, arany kiemelés.',
+    patch:{ canvas:{bg:'black'}, mark:{color:'#FFFFFF'}, word:{color1:'#FFFFFF'},
+      tag:{color:'#E8EAF0'}, inner:{color:'#0A0A0A'} } },
+
+  { id:'ikon', label:'Csak embléma · app ikon', note:'Négyzetes vászon, szöveg nélkül, szűk padding.',
+    patch:{ word:{show:false}, tag:{show:false}, svc:{show:false},
+      canvas:{w:1024,h:1024,trim:false}, layout:{pad:96,zoom:1} } },
+
+  { id:'vizszintes', label:'Vízszintes lockup', note:'Névjegyre, weboldal fejlécbe – embléma balra.',
+    patch:{ layout:{mode:'horizontal',horizGap:64,horizTextAlign:'left',gapTag:22,gapSvc:20,pad:60},
+      canvas:{w:1800,h:700}, mark:{height:520}, word:{autoSize:false,size:190},
+      tag:{autoSize:false,size:52}, svc:{autoSize:false,size:52} } },
+
+  { id:'teljesarany', label:'Teljes arany', note:'Minden elem aranyban – prémium, sötét háttérre.',
+    patch:{ canvas:{bg:'black'}, mark:{fillType:'gold'}, word:{color1:'#F2BC5E',fill2:'gold'},
+      tag:{fillType:'gold'}, svc:{fillType:'gold'}, inner:{color:'#0A0A0A'} } }
+];
+
+/* ==========================================================================
+   VEZERLOK SEMAJA
+   ========================================================================== */
+const FONT_OPTS = ()=> DW_FONTS.map(f=>({v:f.name,l:f.name}));
+const WEIGHT_OPTS = (fname)=> fontDef(fname).w.map(w=>({v:w,l:String(w)}));
+const CASE_OPTS = [{v:'none',l:'Ahogy van'},{v:'upper',l:'NAGY'},{v:'lower',l:'kis'}];
+
+const CONTROL_SCHEMA = [
+{ id:'preset', title:'Kiindulás', ico:'&#9733;', open:true, rows:[
+  {type:'preset', label:'Presetek'},
+  {type:'note', text:'A preset csak a felsorolt mezőket írja felül – a többi beállításod megmarad.'},
+  {type:'buttons', items:[
+    {id:'resetAll', label:'Mindent alaphelyzetbe', kind:'danger full'}
+  ]}
+]},
+
+{ id:'canvas', title:'Vászon és előnézet', ico:'&#9635;', open:false, rows:[
+  {type:'number', path:'canvas.w', label:'Vászon szélesség', min:64, max:6000, step:1, unit:'px'},
+  {type:'number', path:'canvas.h', label:'Vászon magasság', min:64, max:6000, step:1, unit:'px'},
+  {type:'buttons', items:[
+    {id:'sq1254',label:'1254²'},{id:'sq1200',label:'1200²'},{id:'sq1024',label:'1024²'},
+    {id:'og',label:'1200×630'},{id:'wide',label:'1920×1080'},{id:'card',label:'1800×700'}
+  ]},
+  {type:'toggle', path:'canvas.trim', label:'Tartalomra vágás (trim)'},
+  {type:'slider', path:'canvas.trimPad', label:'Vágási margó', min:0, max:300, step:1, unit:'px', when:s=>s.canvas.trim},
+  {type:'divider'},
+  {type:'segmented', path:'canvas.bg', label:'Háttér', options:[
+    {v:'checker',l:'Átlátszó'},{v:'white',l:'Fehér'},{v:'black',l:'Fekete'},{v:'brand',l:'Brand'},{v:'custom',l:'Egyéni'}]},
+  {type:'color', path:'canvas.bgColor', label:'Egyéni háttérszín', when:s=>s.canvas.bg==='custom'},
+  {type:'note', text:'Az átlátszó háttér csak előnézeti kockás minta – az exportált SVG/PNG valóban átlátszó.'}
+]},
+
+{ id:'layout', title:'Kompozíció', ico:'&#9776;', open:true, rows:[
+  {type:'segmented', path:'layout.mode', label:'Elrendezés', options:[{v:'stack',l:'Álló'},{v:'horizontal',l:'Fekvő'}]},
+  {type:'slider', path:'layout.gapMark', label:'D → Darwin AI', min:-120, max:320, step:1, unit:'px'},
+  {type:'slider', path:'layout.gapTag', label:'Darwin AI → tagline', min:-60, max:200, step:1, unit:'px'},
+  {type:'slider', path:'layout.gapSvc', label:'Tagline → szolgáltatás', min:-60, max:200, step:1, unit:'px'},
+  {type:'slider', path:'layout.horizGap', label:'Embléma ↔ szöveg', min:0, max:400, step:1, unit:'px', when:s=>s.layout.mode==='horizontal'},
+  {type:'segmented', path:'layout.horizTextAlign', label:'Szöveg igazítás', options:[{v:'left',l:'Balra'},{v:'center',l:'Közép'}], when:s=>s.layout.mode==='horizontal'},
+  {type:'slider', path:'layout.markShift', label:'Embléma vízsz. tolás', min:-400, max:400, step:1, unit:'px', when:s=>s.layout.mode!=='horizontal'},
+  {type:'divider'},
+  {type:'segmented', path:'layout.widthMode', label:'Sorszélességek', options:[
+    {v:'fixed',l:'Fix'},{v:'match',l:'Wordmarkhoz'},{v:'auto',l:'Szabad'}]},
+  {type:'slider', path:'layout.textWidth', label:'Szövegblokk szélesség', min:200, max:2400, step:1, unit:'px', when:s=>s.layout.widthMode==='fixed'},
+  {type:'note', text:'A brief előírása: a három szövegsor optikailag azonos szélességű legyen. „Fix” módban mindhárom sor pontosan ilyen széles lesz.'},
+  {type:'divider'},
+  {type:'segmented', path:'layout.fitMode', label:'Vászonhoz illesztés', options:[{v:'none',l:'Nincs'},{v:'shrink',l:'Belefér'},{v:'fill',l:'Kitölt'}]},
+  {type:'slider', path:'layout.pad', label:'Belső margó', min:0, max:600, step:1, unit:'px'},
+  {type:'slider', path:'layout.zoom', label:'Nagyítás', min:0.2, max:2.5, step:0.005, fmt:'x'},
+  {type:'xy', pathX:'layout.offsetX', pathY:'layout.offsetY', label:'Eltolás', min:-400, max:400}
+]},
+
+{ id:'mark', title:'D embléma', ico:'&#9639;', open:true, rows:[
+  {type:'toggle', path:'mark.show', label:'Látszik'},
+  {type:'segmented', path:'mark.mode', label:'Forma forrása', options:[{v:'geo',l:'Geometrikus'},{v:'font',l:'Betűtípusból'}]},
+  {type:'text', path:'mark.glyph', label:'Betű', when:s=>s.mark.mode==='font'},
+  {type:'font', path:'mark.font', weightPath:'mark.weight', label:'Betűtípus', when:s=>s.mark.mode==='font'},
+  {type:'toggle', path:'mark.fitBox', label:'Szélességre nyújtás', when:s=>s.mark.mode==='font'},
+  {type:'divider'},
+  {type:'slider', path:'mark.height', label:'Magasság', min:120, max:1600, step:1, unit:'px'},
+  {type:'slider', path:'mark.width', label:'Szélesség', min:120, max:1600, step:1, unit:'px', when:s=>s.mark.mode==='geo'||s.mark.fitBox},
+  {type:'slider', path:'mark.stem', label:'Szár vastagság', min:20, max:520, step:1, unit:'px'},
+  {type:'slider', path:'mark.topBar', label:'Felső gerenda', min:20, max:520, step:1, unit:'px'},
+  {type:'readout', label:'Alsó gerenda (számított)', get:(s,m)=> m&&m.markGeo&&m.markGeo.bottomBar!=null ? m.markGeo.bottomBar+' px' : '–'},
+  {type:'slider', path:'mark.flatRatio', label:'Egyenes szakasz', min:0, max:0.95, step:0.005, fmt:'%', when:s=>s.mark.mode==='geo'},
+  {type:'slider', path:'mark.roundness', label:'Hasas kerekség', min:1, max:8, step:0.01, when:s=>s.mark.mode==='geo'},
+  {type:'note', text:'2,00 = tiszta ellipszis · 2,36 = az eredeti logó · 4+ = szögletes squircle.', when:s=>s.mark.mode==='geo'},
+  {type:'slider', path:'mark.cornerTL', label:'Bal felső lekerekítés', min:0, max:320, step:1, unit:'px', when:s=>s.mark.mode==='geo'},
+  {type:'slider', path:'mark.cornerBL', label:'Bal alsó lekerekítés', min:0, max:320, step:1, unit:'px', when:s=>s.mark.mode==='geo'},
+  {type:'slider', path:'mark.slant', label:'Dőlés', min:-25, max:25, step:0.5, unit:'°'},
+  {type:'divider'},
+  {type:'segmented', path:'mark.fillType', label:'Kitöltés', options:[{v:'solid',l:'Szín'},{v:'gold',l:'Arany'}]},
+  {type:'color', path:'mark.color', label:'Szín', when:s=>s.mark.fillType==='solid'},
+  {type:'slider', path:'mark.opacity', label:'Átlátszatlanság', min:0, max:1, step:0.01, fmt:'%'},
+  {type:'toggle', path:'mark.strokeMode', label:'Kontúros (outline) mód', when:s=>s.mark.mode==='geo'},
+  {type:'slider', path:'mark.strokeWidth', label:'Kontúr vastagság', min:1, max:120, step:0.5, unit:'px', when:s=>s.mark.strokeMode&&s.mark.mode==='geo'}
+]},
+
+{ id:'inner', title:'Belső forma', ico:'&#9723;', open:true, rows:[
+  {type:'toggle', path:'inner.show', label:'Látszik'},
+  {type:'select', path:'inner.shape', label:'Alak', options:[
+    {v:'square',l:'Négyzet'},{v:'circle',l:'Kör / ellipszis'},{v:'diamond',l:'Rombusz'},
+    {v:'hexagon',l:'Hatszög'},{v:'triangle',l:'Háromszög'},{v:'cross',l:'Kereszt'},
+    {v:'slash',l:'Ferde sáv'},{v:'none',l:'Nincs'}]},
+  {type:'segmented', path:'inner.mode', label:'Típus', options:[{v:'knockout',l:'Kivágás'},{v:'fill',l:'Kitöltött'}]},
+  {type:'color', path:'inner.color', label:'Kitöltés színe', when:s=>s.inner.mode==='fill'},
+  {type:'slider', path:'inner.w', label:'Szélesség', min:10, max:900, step:1, unit:'px'},
+  {type:'slider', path:'inner.h', label:'Magasság', min:10, max:900, step:1, unit:'px'},
+  {type:'buttons', items:[{id:'sqLock',label:'Négyzetesítés'},{id:'sqCenter',label:'Optikai közép'}]},
+  {type:'slider', path:'inner.radius', label:'Sarok lekerekítés', min:0, max:300, step:1, unit:'px', when:s=>s.inner.shape==='square'},
+  {type:'slider', path:'inner.rotate', label:'Forgatás', min:-90, max:90, step:0.5, unit:'°'},
+  {type:'xy', pathX:'inner.offsetX', pathY:'inner.offsetY', label:'Finom eltolás', min:-200, max:200}
+]},
+
+{ id:'word', title:'Wordmark · Darwin AI', ico:'&#65;', open:true, rows:[
+  {type:'toggle', path:'word.show', label:'Látszik'},
+  {type:'text', path:'word.part1', label:'1. rész (sötét)'},
+  {type:'text', path:'word.part2', label:'2. rész (arany)'},
+  {type:'font', path:'word.font', weightPath:'word.weight', label:'Betűtípus'},
+  {type:'toggle', path:'word.autoSize', label:'Méret a szélességhez'},
+  {type:'slider', path:'word.size', label:'Betűméret', min:20, max:700, step:0.5, unit:'px', when:s=>!s.word.autoSize||s.layout.widthMode==='auto'},
+  {type:'readout', label:'Számított méret', get:(s,m)=> m&&m.solved&&m.solved.word ? nf(m.solved.word,1)+' px' : '–', when:s=>s.word.autoSize&&s.layout.widthMode!=='auto'},
+  {type:'slider', path:'word.tracking', label:'Betűköz', min:-0.12, max:0.5, step:0.002, fmt:'em'},
+  {type:'slider', path:'word.gapAI', label:'Rés a két rész közt', min:-0.2, max:0.6, step:0.002, fmt:'em'},
+  {type:'toggle', path:'word.italic', label:'Dőlt'},
+  {type:'segmented', path:'word.caseMode', label:'Kis/nagybetű', options:CASE_OPTS},
+  {type:'divider'},
+  {type:'color', path:'word.color1', label:'1. rész színe'},
+  {type:'segmented', path:'word.fill2', label:'2. rész kitöltése', options:[{v:'gold',l:'Arany'},{v:'solid',l:'Szín'}]},
+  {type:'color', path:'word.color2', label:'2. rész színe', when:s=>s.word.fill2!=='gold'}
+]},
+
+{ id:'tag', title:'Tagline', ico:'&#8212;', open:false, rows:[
+  {type:'toggle', path:'tag.show', label:'Látszik'},
+  {type:'text', path:'tag.text', label:'Szöveg'},
+  {type:'font', path:'tag.font', weightPath:'tag.weight', label:'Betűtípus'},
+  {type:'toggle', path:'tag.autoSize', label:'Méret a szélességhez'},
+  {type:'slider', path:'tag.size', label:'Betűméret', min:8, max:300, step:0.5, unit:'px', when:s=>!s.tag.autoSize||s.layout.widthMode==='auto'},
+  {type:'readout', label:'Számított méret', get:(s,m)=> m&&m.solved&&m.solved.tag ? nf(m.solved.tag,1)+' px' : '–', when:s=>s.tag.autoSize&&s.layout.widthMode!=='auto'},
+  {type:'slider', path:'tag.tracking', label:'Betűköz (ritkítás)', min:0, max:1.2, step:0.005, fmt:'em'},
+  {type:'segmented', path:'tag.caseMode', label:'Kis/nagybetű', options:CASE_OPTS},
+  {type:'segmented', path:'tag.fillType', label:'Kitöltés', options:[{v:'solid',l:'Szín'},{v:'gold',l:'Arany'}]},
+  {type:'color', path:'tag.color', label:'Szín', when:s=>s.tag.fillType==='solid'}
+]},
+
+{ id:'svc', title:'Szolgáltatás sor', ico:'&#8226;', open:false, rows:[
+  {type:'toggle', path:'svc.show', label:'Látszik'},
+  {type:'text', path:'svc.text', label:'Szöveg'},
+  {type:'buttons', items:[
+    {id:'sep-',label:'–'},{id:'sep•',label:'•'},{id:'sep|',label:'|'},{id:'sep/',label:'/'}]},
+  {type:'note', text:'Az elválasztó gombok a jelenlegi szövegben cserélik ki a jeleket.'},
+  {type:'font', path:'svc.font', weightPath:'svc.weight', label:'Betűtípus'},
+  {type:'toggle', path:'svc.autoSize', label:'Méret a szélességhez'},
+  {type:'slider', path:'svc.size', label:'Betűméret', min:8, max:300, step:0.5, unit:'px', when:s=>!s.svc.autoSize||s.layout.widthMode==='auto'},
+  {type:'readout', label:'Számított méret', get:(s,m)=> m&&m.solved&&m.solved.svc ? nf(m.solved.svc,1)+' px' : '–', when:s=>s.svc.autoSize&&s.layout.widthMode!=='auto'},
+  {type:'slider', path:'svc.tracking', label:'Betűköz', min:-0.05, max:0.8, step:0.005, fmt:'em'},
+  {type:'segmented', path:'svc.caseMode', label:'Kis/nagybetű', options:CASE_OPTS},
+  {type:'segmented', path:'svc.fillType', label:'Kitöltés', options:[{v:'gold',l:'Arany'},{v:'solid',l:'Szín'}]},
+  {type:'color', path:'svc.color', label:'Szín', when:s=>s.svc.fillType==='solid'}
+]},
+
+{ id:'gold', title:'Arany', ico:'&#9673;', open:false, rows:[
+  {type:'goldpreset', label:'Paletták'},
+  {type:'gradient', path:'gold.stops', label:'Színátmenet'},
+  {type:'slider', path:'gold.angle', label:'Irány', min:0, max:360, step:1, unit:'°'},
+  {type:'segmented', path:'gold.type', label:'Típus', options:[{v:'linear',l:'Lineáris'},{v:'radial',l:'Sugaras'}]},
+  {type:'slider', path:'gold.metallic', label:'Fémes hatás', min:0, max:1, step:0.01, fmt:'%'},
+  {type:'note', text:'A brief szerinti arany: #F3D37A → #D9A63E → #B67A22. A „Kép szerinti” a Simple.png-ből mért értékeket használja.'}
+]},
+
+{ id:'helix', title:'Helix · DNS motívum', ico:'&#8767;', open:false, rows:[
+  {type:'toggle', path:'helix.show', label:'Látszik (Cross változat)'},
+  {type:'segmented', path:'helix.layer', label:'Rétegzés', options:[
+    {v:'through',l:'Áttörő'},{v:'behind',l:'D mögött'},{v:'front',l:'D előtt'}]},
+  {type:'slider', path:'helix.thread', label:'Áttörési pont', min:0, max:1, step:0.005, fmt:'%', when:s=>s.helix.layer==='through'},
+  {type:'segmented', path:'layout.helixBounds', label:'Kompozíció alapja', options:[{v:'ignore',l:'Csak a D'},{v:'include',l:'D + helix'}]},
+  {type:'note', text:'„Csak a D”: a helix kilóghat a vászonból, a D marad középen – így néz ki a Cross.png. „D + helix”: minden belefér a vászonba.'},
+  {type:'divider'},
+  {type:'axis', label:'Tengely (emblémához képest)'},
+  {type:'buttons', items:[{id:'hxReset',label:'Eredeti tengely'},{id:'hxMirror',label:'Tükrözés'},{id:'hxFlat',label:'Vízszintes'}]},
+  {type:'divider'},
+  {type:'slider', path:'helix.turns', label:'Fordulatok', min:0.3, max:9, step:0.05},
+  {type:'slider', path:'helix.amp', label:'Amplitúdó', min:4, max:320, step:1, unit:'px'},
+  {type:'slider', path:'helix.ampGrow', label:'Amplitúdó növekedés', min:0.2, max:5, step:0.02, fmt:'x'},
+  {type:'slider', path:'helix.phase', label:'Fázis', min:0, max:6.2832, step:0.01},
+  {type:'slider', path:'helix.tilt', label:'Térbeli dőlés', min:-70, max:70, step:1, unit:'°'},
+  {type:'divider'},
+  {type:'slider', path:'helix.nodes', label:'Gömbök száma (szálanként)', min:0, max:80, step:1},
+  {type:'slider', path:'helix.nodeSize', label:'Gömb méret', min:1, max:60, step:0.5, unit:'px'},
+  {type:'slider', path:'helix.nodeGrow', label:'Gömb növekedés', min:0.2, max:6, step:0.02, fmt:'x'},
+  {type:'slider', path:'helix.rungs', label:'Összekötők száma', min:0, max:60, step:1},
+  {type:'slider', path:'helix.rungWidth', label:'Összekötő vastagság', min:0.5, max:30, step:0.5, unit:'px'},
+  {type:'slider', path:'helix.rungOpacity', label:'Összekötő átlátszatlanság', min:0, max:1, step:0.01, fmt:'%'},
+  {type:'divider'},
+  {type:'slider', path:'helix.cubes', label:'Kockák száma', min:0, max:14, step:1},
+  {type:'slider', path:'helix.cubeSize', label:'Kocka méret', min:2, max:160, step:1, unit:'px'},
+  {type:'slider', path:'helix.cubeGrow', label:'Kocka növekedés', min:0.2, max:6, step:0.02, fmt:'x'},
+  {type:'slider', path:'helix.cubeSpin', label:'Kocka forgatás', min:0, max:360, step:1, unit:'°'},
+  {type:'divider'},
+  {type:'toggle', path:'helix.ribbon', label:'Szalag a szálak mentén'},
+  {type:'slider', path:'helix.ribbonWidth', label:'Szalag vastagság', min:0.5, max:24, step:0.5, unit:'px', when:s=>s.helix.ribbon},
+  {type:'slider', path:'helix.ribbonOpacity', label:'Szalag átlátszatlanság', min:0, max:1, step:0.01, fmt:'%', when:s=>s.helix.ribbon},
+  {type:'slider', path:'helix.shade', label:'Térbeli árnyalás', min:0, max:1, step:0.01, fmt:'%'},
+  {type:'slider', path:'helix.glow', label:'Ragyogás', min:0, max:1, step:0.01, fmt:'%'}
+]},
+
+{ id:'anim', title:'Animáció', ico:'&#9654;', open:false, rows:[
+  {type:'select', path:'anim.mode', label:'Mód', options:ANIM_MODES.map(m=>({v:m.id,l:m.label}))},
+  {type:'animhint'},
+  {type:'slider', path:'anim.duration', label:'Hossz', min:0.4, max:30, step:0.1, unit:'s'},
+  {type:'slider', path:'anim.speed', label:'Sebesség', min:0.1, max:4, step:0.05, fmt:'x'},
+  {type:'select', path:'anim.easing', label:'Időzítés', options:Object.keys(EASINGS).map(k=>({v:k,l:k}))},
+  {type:'slider', path:'anim.stagger', label:'Elemek eltolása', min:0, max:1.5, step:0.01},
+  {type:'toggle', path:'anim.playing', label:'Lejátszás'},
+  {type:'slider', path:'anim.frames', label:'Export képkockák', min:6, max:90, step:1},
+  {type:'note', text:'A „Export képkockák” az animált SVG (flipbook) és a videó/GIF export felbontását adja meg.'},
+  {type:'buttons', items:[
+    {id:'expAnimSVG', label:'Animált SVG mentése', kind:'full'},
+    {id:'expWebM', label:'Videó (WebM)'},
+    {id:'expFrames', label:'PNG képkockák'}
+  ]}
+]},
+
+{ id:'guides', title:'Segédvonalak', ico:'&#8862;', open:false, rows:[
+  {type:'toggle', path:'guides.grid', label:'Rács és középvonalak'},
+  {type:'toggle', path:'guides.bbox', label:'Befoglaló dobozok'},
+  {type:'toggle', path:'guides.clearspace', label:'Védőzóna'},
+  {type:'toggle', path:'guides.baseline', label:'Alapvonalak'},
+  {type:'note', text:'A segédvonalak csak az előnézetben látszanak, exportban soha.'}
+]},
+
+{ id:'export', title:'Export', ico:'&#8595;', open:false, rows:[
+  {type:'buttons', items:[
+    {id:'expSVG',    label:'SVG (élő szöveg)', kind:'full'},
+    {id:'expSVGEmb', label:'SVG (beágyazott font)', kind:'full'},
+    {id:'expPNG1',   label:'PNG 1×'},
+    {id:'expPNG2',   label:'PNG 2×'},
+    {id:'expPNG4',   label:'PNG 4×'},
+    {id:'expPNG8',   label:'PNG 8×'},
+    {id:'expBoth',   label:'Simple + Cross SVG', kind:'full'},
+    {id:'expPack',   label:'Ikoncsomag (PNG)', kind:'full'},
+    {id:'copySVG',   label:'SVG a vágólapra'},
+    {id:'expJSON',   label:'Beállítás JSON'}
+  ]},
+  {type:'note', text:'A PNG exporthoz a rendszer beágyazza a betűtípusokat – ehhez internet kell. Élő szöveges SVG-nél a megnyitó gépen telepítve kell lennie a fontnak; véglegesítéskor Illustratorban/Figmában alakítsd görbévé.'}
+]}
+];
+
+/* ==========================================================================
+   VEZERLOK FELEPITESE  (egyszer epul fel, utana csak szinkronizalunk)
+   onChange(path, value, {commit})   -  ertek valtozott
+   onChange(null, null, {action:id}) -  gomb / preset
+   ========================================================================== */
+const el = (t,c,h)=>{ const e=document.createElement(t); if(c) e.className=c; if(h!=null) e.innerHTML=h; return e; };
+
+function fmtVal(row, v){
+  if(row.fmt==='%')  return nf(v*100, v*100%1?1:0)+'%';
+  if(row.fmt==='em') return nf(v,3)+' em';
+  if(row.fmt==='x')  return nf(v,2)+'×';
+  return nf(v, (row.step&&row.step<1)?2:0) + (row.unit?'':'');
+}
+function parseVal(row, s){
+  let v=parseFloat(String(s).replace(',','.').replace(/[^0-9.\-]/g,''));
+  if(!isFinite(v)) return null;
+  if(row.fmt==='%') v=v/100;
+  return v;
+}
+
+function renderControls(root, schema, state, onChange){
+  root.innerHTML='';
+  const ctrls=[];
+
+  schema.forEach(sec=>{
+    const S=el('div','sec'+(sec.open?' open':''));
+    const h=el('h3','', '<span class="ico">'+(sec.ico||'')+'</span>'+sec.title+'<span class="dot"></span><span class="chev"></span>');
+    h.addEventListener('click',()=>S.classList.toggle('open'));
+    const body=el('div','secbody');
+    S.appendChild(h); S.appendChild(body); root.appendChild(S);
+
+    sec.rows.forEach(row=>{
+      const node = buildRow(row, state, onChange, ctrls);
+      if(node){ body.appendChild(node); }
+    });
+  });
+  root.__ctrls=ctrls;
+  return ctrls;
+}
+
+function buildRow(row, state, onChange, ctrls){
+  const reg=(o)=>{ ctrls.push(o); return o; };
+
+  switch(row.type){
+  case 'divider': { const d=el('div','hr'); reg({row,node:d}); return d; }
+  case 'note': {
+    const d=el('div','note', row.text); reg({row,node:d}); return d; }
+  case 'animhint': {
+    const d=el('div','note','');
+    reg({row,node:d, sync:(s)=>{ const m=ANIM_MODES.find(x=>x.id===s.anim.mode); d.innerHTML=m?('<b>'+m.label+'</b> – '+m.hint):''; }});
+    return d; }
+
+  case 'readout': {
+    const r=el('div','row'); const l=el('label','',row.label); const v=el('span','ro','–');
+    r.appendChild(l); r.appendChild(v);
+    reg({row,node:r, sync:(s,meta)=>{ v.textContent=row.get(s,meta); }});
+    return r; }
+
+  case 'slider': {
+    const r=el('div','row col');
+    const top=el('div','row');
+    const l=el('label','',row.label);
+    const inp=el('input','num'); inp.type='text';
+    const u=el('span','unit', row.unit||'');
+    top.appendChild(l); top.appendChild(inp); top.appendChild(u);
+    const rng=el('input'); rng.type='range'; rng.min=row.min; rng.max=row.max; rng.step=row.step||1;
+    r.appendChild(top); r.appendChild(rng);
+    l.title='Kattints duplán az alapértékhez';
+    l.addEventListener('dblclick',()=>onChange(row.path, getPath(DEFAULTS,row.path), {commit:true}));
+    rng.addEventListener('input',()=>onChange(row.path, parseFloat(rng.value), {commit:false}));
+    rng.addEventListener('change',()=>onChange(row.path, parseFloat(rng.value), {commit:true}));
+    const commitNum=()=>{ const v=parseVal(row, inp.value); if(v!=null) onChange(row.path, clamp(v,row.min,row.max), {commit:true}); };
+    inp.addEventListener('change', commitNum);
+    inp.addEventListener('keydown',e=>{
+      if(e.key==='Enter'){ commitNum(); inp.blur(); }
+      if(e.key==='ArrowUp'||e.key==='ArrowDown'){
+        e.preventDefault();
+        const st=(row.step||1)*(e.shiftKey?10:e.altKey?0.1:1)*(e.key==='ArrowUp'?1:-1);
+        const cur=getPath(state,row.path)||0;
+        onChange(row.path, clamp(+(cur+st).toFixed(6),row.min,row.max), {commit:true});
+      }
+    });
+    reg({row,node:r, sync:(s)=>{ const v=getPath(s,row.path);
+      if(document.activeElement!==rng) rng.value=v;
+      if(document.activeElement!==inp) inp.value=fmtVal(row,v);
+      u.textContent=row.unit||''; }});
+    return r; }
+
+  case 'number': {
+    const r=el('div','row'); const l=el('label','',row.label);
+    const inp=el('input','num'); inp.type='text';
+    const u=el('span','unit',row.unit||'');
+    r.appendChild(l); r.appendChild(inp); r.appendChild(u);
+    const c=()=>{ const v=parseVal(row,inp.value); if(v!=null) onChange(row.path, clamp(v,row.min!=null?row.min:-1e9,row.max!=null?row.max:1e9), {commit:true}); };
+    inp.addEventListener('change',c);
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){c();inp.blur();} });
+    reg({row,node:r, sync:s=>{ if(document.activeElement!==inp) inp.value=nf(getPath(s,row.path),2); }});
+    return r; }
+
+  case 'text': {
+    const r=el('div','row col'); const l=el('label','',row.label);
+    const inp=el('input','txt'); inp.type='text'; if(row.placeholder) inp.placeholder=row.placeholder;
+    const top=el('div','row'); top.appendChild(l); r.appendChild(top); r.appendChild(inp);
+    inp.addEventListener('input',()=>onChange(row.path, inp.value, {commit:false}));
+    inp.addEventListener('change',()=>onChange(row.path, inp.value, {commit:true}));
+    reg({row,node:r, sync:s=>{ if(document.activeElement!==inp) inp.value=getPath(s,row.path)||''; }});
+    return r; }
+
+  case 'color': {
+    const r=el('div','row'); const l=el('label','',row.label);
+    const sw=el('div','clr'); const fill=el('span'); const ci=el('input'); ci.type='color';
+    sw.appendChild(fill); sw.appendChild(ci);
+    const hx=el('input','hex'); hx.type='text';
+    r.appendChild(l); r.appendChild(sw); r.appendChild(hx);
+    ci.addEventListener('input',()=>onChange(row.path, ci.value.toUpperCase(), {commit:false}));
+    ci.addEventListener('change',()=>onChange(row.path, ci.value.toUpperCase(), {commit:true}));
+    hx.addEventListener('change',()=>{ const v=hx.value.trim(); if(/^#?[0-9a-fA-F]{3,6}$/.test(v))
+      onChange(row.path, rgb2hex.apply(null,hex2rgb(v)), {commit:true}); });
+    reg({row,node:r, sync:s=>{ const v=getPath(s,row.path)||'#000000';
+      fill.style.background=v; ci.value=/^#[0-9a-f]{6}$/i.test(v)?v:'#000000';
+      if(document.activeElement!==hx) hx.value=v; }});
+    return r; }
+
+  case 'select': {
+    const r=el('div','row col'); const top=el('div','row'); top.appendChild(el('label','',row.label));
+    const sel=el('select'); r.appendChild(top); r.appendChild(sel);
+    let lastKey='';
+    const fill=(s)=>{
+      const opts = typeof row.options==='function' ? row.options(s) : row.options;
+      const key=opts.map(o=>o.v).join('|');
+      if(key!==lastKey){ lastKey=key; sel.innerHTML='';
+        opts.forEach(o=>{ const op=el('option','',o.l); op.value=o.v; sel.appendChild(op); }); }
+    };
+    sel.addEventListener('change',()=>{
+      let v=sel.value; const n=parseFloat(v);
+      if(!isNaN(n) && String(n)===v) v=n;
+      onChange(row.path, v, {commit:true});
+    });
+    reg({row,node:r, sync:s=>{ fill(s); sel.value=String(getPath(s,row.path)); }});
+    return r; }
+
+  case 'segmented': {
+    const r=el('div','row'); r.appendChild(el('label','',row.label));
+    const g=el('div','seg'); const btns=[];
+    (row.options||[]).forEach(o=>{ const b=el('button','',o.l); b.title=o.title||o.l;
+      b.addEventListener('click',()=>onChange(row.path,o.v,{commit:true})); g.appendChild(b); btns.push({b,v:o.v}); });
+    r.appendChild(g);
+    reg({row,node:r, sync:s=>{ const v=getPath(s,row.path);
+      btns.forEach(x=>x.b.classList.toggle('on', String(x.v)===String(v))); }});
+    return r; }
+
+  case 'toggle': {
+    const r=el('div','row'); const l=el('label','',row.label); const b=el('button','sw');
+    r.appendChild(l); r.appendChild(b);
+    const t=()=>onChange(row.path, !getPath(window.__S,row.path), {commit:true});
+    b.addEventListener('click',t); l.addEventListener('click',t);
+    reg({row,node:r, sync:s=>{ b.classList.toggle('on', !!getPath(s,row.path)); }});
+    return r; }
+
+  case 'font': {
+    const r=el('div','row col');
+    const top=el('div','row'); top.appendChild(el('label','',row.label));
+    const wrap=el('div','row');
+    const fs=el('select'); DW_FONTS.forEach(f=>{ const o=el('option','',f.name+(f.g?'':'  (rendszer)')); o.value=f.name; fs.appendChild(o); });
+    const ws=el('select'); ws.style.maxWidth='84px'; ws.style.flex='0 0 84px';
+    wrap.appendChild(fs); if(row.weightPath) wrap.appendChild(ws);
+    r.appendChild(top); r.appendChild(wrap);
+    fs.addEventListener('change',()=>{
+      onChange(row.path, fs.value, {commit:true});
+      if(row.weightPath){
+        const cur=getPath(window.__S,row.weightPath);
+        onChange(row.weightPath, nearestWeight(fs.value,cur), {commit:true});
+      }
+    });
+    ws.addEventListener('change',()=>onChange(row.weightPath, parseInt(ws.value,10), {commit:true}));
+    let lastF='';
+    reg({row,node:r, sync:s=>{
+      const fn=getPath(s,row.path); fs.value=fn;
+      if(row.weightPath){
+        if(fn!==lastF){ lastF=fn; ws.innerHTML='';
+          fontDef(fn).w.forEach(w=>{ const o=el('option','',String(w)); o.value=w; ws.appendChild(o); }); }
+        ws.value=String(getPath(s,row.weightPath));
+      }
+    }});
+    return r; }
+
+  case 'gradient': {
+    const r=el('div','row col gwrap');
+    r.appendChild(el('div','row','<label>'+row.label+'</label>'));
+    const bar=el('div','gbar');
+    const meta=el('div','gmeta');
+    const sw=el('div','clr'); const fill=el('span'); const ci=el('input'); ci.type='color';
+    sw.appendChild(fill); sw.appendChild(ci);
+    const hx=el('input','hex'); hx.type='text';
+    const pos=el('input','num'); pos.type='text';
+    const del=el('button','tbtn sm danger','&times;'); del.title='Színpont törlése';
+    meta.appendChild(sw); meta.appendChild(hx); meta.appendChild(pos); meta.appendChild(el('span','unit','%')); meta.appendChild(del);
+    r.appendChild(bar); r.appendChild(meta);
+    r.appendChild(el('div','note','Kattints a sávra új színpontért · húzd a jelölőt · dupla kattintás a jelölőn = törlés'));
+    let sel=0, drag=null;
+
+    const stops=()=> getPath(window.__S, row.path);
+    const commit=(arr,c)=> onChange(row.path, arr, {commit:c!==false});
+
+    bar.addEventListener('mousedown',e=>{
+      if(e.target!==bar) return;
+      const rc=bar.getBoundingClientRect();
+      const p=clamp((e.clientX-rc.left)/rc.width*100,0,100);
+      const arr=deepClone(stops()); arr.push({c:sampleStops(arr,p),p:p});
+      arr.sort((a,b)=>a.p-b.p); sel=arr.findIndex(x=>Math.abs(x.p-p)<0.001);
+      commit(arr);
+    });
+    document.addEventListener('mousemove',e=>{
+      if(drag==null) return;
+      const rc=bar.getBoundingClientRect();
+      const p=clamp((e.clientX-rc.left)/rc.width*100,0,100);
+      const arr=deepClone(stops()); if(!arr[drag]) return;
+      arr[drag].p=p; commit(arr,false);
+    });
+    document.addEventListener('mouseup',()=>{ if(drag!=null){ drag=null; commit(deepClone(stops()),true); } });
+
+    ci.addEventListener('input',()=>{ const arr=deepClone(stops()); if(arr[sel]){arr[sel].c=ci.value.toUpperCase(); commit(arr,false);} });
+    ci.addEventListener('change',()=>{ const arr=deepClone(stops()); if(arr[sel]){arr[sel].c=ci.value.toUpperCase(); commit(arr,true);} });
+    hx.addEventListener('change',()=>{ const v=hx.value.trim(); if(!/^#?[0-9a-fA-F]{3,6}$/.test(v))return;
+      const arr=deepClone(stops()); if(arr[sel]){arr[sel].c=rgb2hex.apply(null,hex2rgb(v)); commit(arr,true);} });
+    pos.addEventListener('change',()=>{ const v=parseFloat(pos.value); if(!isFinite(v))return;
+      const arr=deepClone(stops()); if(arr[sel]){arr[sel].p=clamp(v,0,100); commit(arr,true);} });
+    del.addEventListener('click',()=>{ const arr=deepClone(stops()); if(arr.length<=2) return;
+      arr.splice(sel,1); sel=Math.max(0,sel-1); commit(arr,true); });
+
+    reg({row,node:r, sync:s=>{
+      const arr=getPath(s,row.path)||[];
+      const srt=arr.slice().sort((a,b)=>a.p-b.p);
+      bar.style.background='linear-gradient(90deg,'+srt.map(x=>x.c+' '+nf(x.p,2)+'%').join(',')+')';
+      bar.querySelectorAll('.gstop').forEach(n=>n.remove());
+      arr.forEach((x,i)=>{
+        const h=el('div','gstop'+(i===sel?' sel':''));
+        h.style.left=nf(x.p,3)+'%'; h.style.background=x.c;
+        h.addEventListener('mousedown',ev=>{ ev.stopPropagation(); sel=i; drag=i;
+          bar.parentNode.querySelectorAll('.gstop').forEach(n=>n.classList.remove('sel')); h.classList.add('sel');
+          syncPanel(); });
+        h.addEventListener('dblclick',ev=>{ ev.stopPropagation(); const a2=deepClone(arr);
+          if(a2.length>2){ a2.splice(i,1); sel=0; commit(a2,true); } });
+        bar.appendChild(h);
+      });
+      if(sel>=arr.length) sel=0;
+      const cur=arr[sel]||{c:'#000000',p:0};
+      fill.style.background=cur.c; ci.value=/^#[0-9a-f]{6}$/i.test(cur.c)?cur.c:'#000000';
+      if(document.activeElement!==hx) hx.value=cur.c;
+      if(document.activeElement!==pos) pos.value=nf(cur.p,1);
+      del.disabled=arr.length<=2;
+    }});
+    return r; }
+
+  case 'xy': {
+    const r=el('div','row col');
+    const top=el('div','row'); const lab=el('label','',row.label);
+    const nx=el('input','num'); nx.type='text'; const ny=el('input','num'); ny.type='text';
+    top.appendChild(lab); top.appendChild(nx); top.appendChild(ny);
+    const pad=el('div','xy');
+    const g1=el('div','gl'); g1.style.cssText='left:0;right:0;top:50%;height:1px';
+    const g2=el('div','gl'); g2.style.cssText='top:0;bottom:0;left:50%;width:1px';
+    const dot=el('i'); pad.appendChild(g1); pad.appendChild(g2); pad.appendChild(dot);
+    r.appendChild(top); r.appendChild(pad);
+    lab.addEventListener('dblclick',()=>{ onChange(row.pathX,getPath(DEFAULTS,row.pathX),{commit:true});
+      onChange(row.pathY,getPath(DEFAULTS,row.pathY),{commit:true}); });
+    let down=false;
+    const set=(e,c)=>{
+      const rc=pad.getBoundingClientRect();
+      const x=lerp(row.min,row.max,clamp((e.clientX-rc.left)/rc.width,0,1));
+      const y=lerp(row.min,row.max,clamp((e.clientY-rc.top)/rc.height,0,1));
+      onChange(row.pathX, Math.round(x*10)/10, {commit:c});
+      onChange(row.pathY, Math.round(y*10)/10, {commit:c});
+    };
+    pad.addEventListener('mousedown',e=>{ down=true; set(e,false); });
+    document.addEventListener('mousemove',e=>{ if(down) set(e,false); });
+    document.addEventListener('mouseup',e=>{ if(down){ down=false; set(e,true); } });
+    const cm=(inp,p)=>{ inp.addEventListener('change',()=>{ const v=parseFloat(inp.value); if(isFinite(v)) onChange(p,v,{commit:true}); }); };
+    cm(nx,row.pathX); cm(ny,row.pathY);
+    reg({row,node:r, sync:s=>{
+      const x=getPath(s,row.pathX), y=getPath(s,row.pathY);
+      if(document.activeElement!==nx) nx.value=nf(x,1);
+      if(document.activeElement!==ny) ny.value=nf(y,1);
+      dot.style.left=nf((x-row.min)/(row.max-row.min)*100,2)+'%';
+      dot.style.top =nf((y-row.min)/(row.max-row.min)*100,2)+'%';
+    }});
+    return r; }
+
+  case 'axis': {
+    const r=el('div','row col');
+    r.appendChild(el('div','row','<label>'+row.label+'</label>'));
+    const mkp=(lab,px,py)=>{
+      const rr=el('div','row');
+      rr.appendChild(el('label','',lab));
+      const a=el('input','num'); a.type='text'; const b=el('input','num'); b.type='text';
+      rr.appendChild(a); rr.appendChild(b);
+      a.addEventListener('change',()=>{const v=parseFloat(a.value); if(isFinite(v)) onChange(px,v,{commit:true});});
+      b.addEventListener('change',()=>{const v=parseFloat(b.value); if(isFinite(v)) onChange(py,v,{commit:true});});
+      return {rr,a,b,px,py};
+    };
+    const p1=mkp('Kezdőpont x / y','helix.x1','helix.y1');
+    const p2=mkp('Végpont x / y','helix.x2','helix.y2');
+    r.appendChild(p1.rr); r.appendChild(p2.rr);
+    r.appendChild(el('div','note','Az emblémán belül húzva is állítható: a két arany fogantyú az előnézeten.'));
+    reg({row,node:r, sync:s=>{
+      [p1,p2].forEach(p=>{ if(document.activeElement!==p.a) p.a.value=nf(getPath(s,p.px),1);
+                            if(document.activeElement!==p.b) p.b.value=nf(getPath(s,p.py),1); });
+    }});
+    return r; }
+
+  case 'buttons': {
+    const r=el('div','btns');
+    (row.items||[]).forEach(it=>{
+      const b=el('button','tbtn sm '+(it.kind||''), it.label);
+      if(it.title) b.title=it.title;
+      b.addEventListener('click',()=>onChange(null,null,{action:it.id}));
+      r.appendChild(b);
+    });
+    reg({row,node:r});
+    return r; }
+
+  case 'preset': {
+    const r=el('div','row col');
+    r.appendChild(el('div','row','<label>'+row.label+'</label>'));
+    const c=el('div','chips');
+    DW_PRESETS.forEach(p=>{ const b=el('button','chip',p.label); b.title=p.note;
+      b.addEventListener('click',()=>onChange(null,null,{action:'preset',id:p.id})); c.appendChild(b); });
+    r.appendChild(c); reg({row,node:r}); return r; }
+
+  case 'goldpreset': {
+    const r=el('div','row col');
+    r.appendChild(el('div','row','<label>'+row.label+'</label>'));
+    const c=el('div','chips');
+    GOLD_PRESETS.forEach(p=>{
+      const b=el('button','chip',p.label);
+      b.style.borderLeft='10px solid '+p.stops[Math.floor(p.stops.length/2)].c;
+      b.addEventListener('click',()=>onChange(null,null,{action:'gold',id:p.id})); c.appendChild(b); });
+    r.appendChild(c); reg({row,node:r}); return r; }
+  }
+  return null;
+}
+
+function syncControls(root, state, meta){
+  const cs=root.__ctrls||[];
+  for(const c of cs){
+    if(c.row && c.row.when){
+      const vis = !!c.row.when(state);
+      c.node.classList.toggle('hidden', !vis);
+      if(!vis) continue;
+    }
+    if(c.sync) try{ c.sync(state, meta); }catch(e){}
+  }
+  // szekciok "modositva" jelzese
+  root.querySelectorAll('.sec').forEach((secEl,i)=>{
+    const sec=CONTROL_SCHEMA[i]; if(!sec) return;
+    let dirty=false;
+    (sec.rows||[]).forEach(r=>{
+      const ps=[r.path,r.pathX,r.pathY].filter(Boolean);
+      ps.forEach(p=>{ if(JSON.stringify(getPath(state,p))!==JSON.stringify(getPath(DEFAULTS,p))) dirty=true; });
+    });
+    secEl.classList.toggle('touched', dirty);
+  });
+}
+
+/* ==========================================================================
+   ALKALMAZAS
+   ========================================================================== */
+let S = deepClone(DEFAULTS);
+window.__S = S;
+const HIST = makeHistory(180);
+const STORE = makeStore();
+let viewZoom = 1, fitZoom = true, curVersionId = null, lastMeta = null;
+let animStart = 0, animRAF = 0, animT = 0, scrubbing = false;
+
+const $ = id=>document.getElementById(id);
+const panel=$('panel'), paper=$('paper'), stage=$('stage'), measure=$('measure');
+
+/* ---------- ertesitesek ---------- */
+function toast(msg, kind, ms){
+  const t=el('div','toast '+(kind||''), msg);
+  $('toasts').appendChild(t);
+  setTimeout(()=>{ t.style.transition='.25s'; t.style.opacity='0'; t.style.transform='translateY(8px)';
+    setTimeout(()=>t.remove(),260); }, ms||2600);
+}
+/* ---------- modal ---------- */
+function modal(title, bodyHTML, buttons, onOpen){
+  const m=$('modal');
+  m.innerHTML='<header>'+title+'</header><div class="body">'+bodyHTML+'</div><footer></footer>';
+  const f=m.querySelector('footer');
+  (buttons||[]).forEach(b=>{
+    const btn=el('button','tbtn '+(b.kind||''), b.label);
+    btn.addEventListener('click',()=>{ if(!b.fn || b.fn(m)!==false) closeModal(); });
+    f.appendChild(btn);
+  });
+  $('modalbg').classList.add('on');
+  if(onOpen) onOpen(m);
+  const first=m.querySelector('input,textarea'); if(first) setTimeout(()=>first.focus(),40);
+}
+function closeModal(){ $('modalbg').classList.remove('on'); }
+$('modalbg').addEventListener('mousedown',e=>{ if(e.target===$('modalbg')) closeModal(); });
+
+/* ==========================================================================
+   RENDER
+   ========================================================================== */
+let renderPending=false;
+function scheduleRender(){
+  if(renderPending) return; renderPending=true;
+  requestAnimationFrame(()=>{ renderPending=false; render(); });
+}
+function render(){
+  const S2=S;
+  paper.innerHTML='';
+  let svg;
+  try{ svg = buildSVG(paper, S2, {animT:animT, prefix:'dw'}); }
+  catch(err){ console.error(err); toast('Renderelési hiba: '+err.message,'bad',5000); return; }
+  lastMeta = svg.__meta||{};
+  layoutPaper(S2);
+  drawAxisHandles(svg, S2);
+  updateSizeStrip(svg);
+  updateStatus(S2);
+  syncControls(panel, S2, lastMeta);
+  $('bUndo').disabled=!HIST.canUndo(); $('bRedo').disabled=!HIST.canRedo();
+  $('dims').textContent = (S2.canvas.trim?'trim · ':'')+Math.round(svg.getAttribute('width'))+' × '+Math.round(svg.getAttribute('height'));
+  if(window.__syncBg) window.__syncBg();
+  updateAnimUI2();
+}
+function layoutPaper(S2){
+  const r=stage.getBoundingClientRect();
+  const availW=r.width-60, availH=r.height-112;
+  const svg=paper.querySelector('svg'); if(!svg) return;
+  const vb=(svg.getAttribute('viewBox')||'0 0 1 1').split(/\s+/).map(Number);
+  const cw=vb[2]||1, ch=vb[3]||1;
+  let sc = Math.min(availW/cw, availH/ch);
+  if(!fitZoom) sc = viewZoom; else viewZoom=sc;
+  paper.style.width=Math.max(24,cw*sc)+'px';
+  paper.style.height=Math.max(24,ch*sc)+'px';
+  $('zoomLbl').textContent=Math.round(sc*100)+'%';
+  paper.className=S2.canvas.bg;
+  if(S2.canvas.bg==='custom') paper.style.setProperty('--paperbg',S2.canvas.bgColor);
+}
+function updateStatus(S2){
+  const lw=(lastMeta&&lastMeta.lineW)||[];
+  if(!lw.length){ $('statusRo').textContent=' '; return; }
+  $('statusRo').textContent='sorok: '+lw.map(x=>Math.round(x.w)).join(' / ')+' px';
+}
+function updateSizeStrip(svg){
+  const sizes=[16,32,64,128];
+  const strip=$('sizeStrip'); strip.innerHTML='';
+  const vb=(svg.getAttribute('viewBox')||'0 0 1 1').split(/\s+/).map(Number);
+  const ar=(vb[2]||1)/(vb[3]||1);
+  sizes.forEach(px=>{
+    const d=el('div','ss'); const box=el('div','box');
+    const w=ar>=1?px:Math.round(px*ar), h=ar>=1?Math.round(px/ar):px;
+    box.style.width=w+'px'; box.style.height=h+'px';
+    const c=svg.cloneNode(true);
+    c.querySelectorAll('#guides').forEach(n=>n.remove());
+    c.setAttribute('width',w); c.setAttribute('height',h);
+    c.style.width=w+'px'; c.style.height=h+'px';
+    box.appendChild(c);
+    d.appendChild(box); d.appendChild(el('span','',px+'px'));
+    strip.appendChild(d);
+  });
+}
+
+/* ---------- helix tengely fogantyuk ---------- */
+function drawAxisHandles(svg, S2){
+  if(!S2.helix.show || !S2.mark.show) return;
+  const host = svg.querySelector('#mark_group') || svg.querySelector('#mark_D');
+  if(!host) return;
+  let g=svg.querySelector('#guides');
+  if(!g){ g=mk('g',{id:'guides','pointer-events':'none'}); svg.appendChild(g); }
+  const gg=mk('g',{'pointer-events':'auto'});
+  g.appendChild(gg);
+  const toScreenLocal=(x,y)=>({x,y});
+  const ctm = host.getCTM();
+  const put=(x,y,which)=>{
+    const p=svg.createSVGPoint(); p.x=x; p.y=y;
+    const q=ctm?p.matrixTransform(ctm):p;
+    const c=mk('circle',{cx:nf(q.x,2),cy:nf(q.y,2),r:14,fill:'rgba(217,166,62,.28)',
+      stroke:'#F3D37A','stroke-width':2.5,style:'cursor:grab'});
+    c.addEventListener('mousedown',ev=>{
+      ev.preventDefault(); ev.stopPropagation();
+      const inv=host.getCTM().inverse();
+      const move=e2=>{
+        const r=svg.getBoundingClientRect();
+        const vb=(svg.getAttribute('viewBox')||'0 0 1 1').split(/\s+/).map(Number);
+        const pt=svg.createSVGPoint();
+        pt.x=vb[0]+(e2.clientX-r.left)/r.width*vb[2];
+        pt.y=vb[1]+(e2.clientY-r.top)/r.height*vb[3];
+        const loc=pt.matrixTransform(inv);
+        if(which==='a'){ S.helix.x1=Math.round(loc.x); S.helix.y1=Math.round(loc.y); }
+        else           { S.helix.x2=Math.round(loc.x); S.helix.y2=Math.round(loc.y); }
+        scheduleRender();
+      };
+      const up=()=>{ document.removeEventListener('mousemove',move); document.removeEventListener('mouseup',up);
+        commitHistory('helix tengely'); };
+      document.addEventListener('mousemove',move); document.addEventListener('mouseup',up);
+    });
+    gg.appendChild(c);
+  };
+  const l=mk('line',{}); gg.appendChild(l);
+  const p1=svg.createSVGPoint(); p1.x=S2.helix.x1; p1.y=S2.helix.y1;
+  const p2=svg.createSVGPoint(); p2.x=S2.helix.x2; p2.y=S2.helix.y2;
+  const q1=ctm?p1.matrixTransform(ctm):p1, q2=ctm?p2.matrixTransform(ctm):p2;
+  l.setAttribute('x1',nf(q1.x,2)); l.setAttribute('y1',nf(q1.y,2));
+  l.setAttribute('x2',nf(q2.x,2)); l.setAttribute('y2',nf(q2.y,2));
+  l.setAttribute('stroke','rgba(243,211,122,.5)'); l.setAttribute('stroke-width',1.5);
+  l.setAttribute('stroke-dasharray','7 6');
+  put(S2.helix.x1,S2.helix.y1,'a'); put(S2.helix.x2,S2.helix.y2,'b');
+}
+
+/* ==========================================================================
+   ALLAPOT VALTOZTATAS
+   ========================================================================== */
+function commitHistory(label){ HIST.push(S,label); }
+function onChange(path, value, o){
+  o=o||{};
+  if(o.action){ doAction(o.action, o.id); return; }
+  if(path==null) return;
+  setPath(S, path, value);
+  if(o.commit) HIST.push(S, path);
+  scheduleRender();
+  if(path.indexOf('.font')>0 || path.indexOf('.weight')>0) ensureFonts();
+}
+function applyState(next, label){
+  S = migrate(next); window.__S = S;
+  if(label!==false) HIST.push(S, label||'állapot');
+  ensureFonts().then(scheduleRender);
+  scheduleRender();
+}
+function applyPatch(patch, label){
+  applyState(deepMerge(S, patch), label);
+}
+function ensureFonts(){
+  return Promise.all(fontsInUse(S).map(f=>loadFont(f.name, f.weights)))
+    .then(()=>{ clearFitCache(); scheduleRender(); });
+}
+
+/* ==========================================================================
+   MUVELETEK
+   ========================================================================== */
+function doAction(a, id){
+  switch(a){
+  case 'preset': {
+    const p=DW_PRESETS.find(x=>x.id===id); if(!p) return;
+    const patch=deepClone(p.patch);
+    /* az "app ikon" preset szandekosan elrejti a szovegeket - minden mas preset
+       visszakapcsolja oket, kulonben egy korabbi preset hatasa "beragadna" */
+    if(p.id!=='ikon') ['mark','word','tag','svc'].forEach(k=>{
+      patch[k]=patch[k]||{}; if(patch[k].show===undefined) patch[k].show=true; });
+    applyPatch(patch, 'preset: '+p.label); toast('Preset: '+p.label,'ok'); return; }
+  case 'gold': {
+    const p=GOLD_PRESETS.find(x=>x.id===id); if(!p) return;
+    applyPatch({gold:{stops:deepClone(p.stops)}}, 'arany: '+p.label); return; }
+  case 'resetAll':
+    modal('Mindent alaphelyzetbe?','<div class="note">Az aktuális beállítások elvesznek. A mentett verziók megmaradnak.</div>',
+      [{label:'Mégsem'},{label:'Alaphelyzet',kind:'pri',fn:()=>{ applyState(deepClone(DEFAULTS),'alaphelyzet'); toast('Alaphelyzet','ok'); }}]);
+    return;
+  case 'sq1254': applyPatch({canvas:{w:1254,h:1254}},'vászon'); return;
+  case 'sq1200': applyPatch({canvas:{w:1200,h:1200}},'vászon'); return;
+  case 'sq1024': applyPatch({canvas:{w:1024,h:1024}},'vászon'); return;
+  case 'og':     applyPatch({canvas:{w:1200,h:630}},'vászon'); return;
+  case 'wide':   applyPatch({canvas:{w:1920,h:1080}},'vászon'); return;
+  case 'card':   applyPatch({canvas:{w:1800,h:700}},'vászon'); return;
+  case 'sqLock': { const v=Math.round((S.inner.w+S.inner.h)/2); applyPatch({inner:{w:v,h:v}},'négyzetesítés'); return; }
+  case 'sqCenter': {
+    /* optikai kozep: a belso forma a D tomegenek kozepere kerul */
+    const m=S.mark, i=S.inner;
+    const rightMass = m.width - (m.stem + i.w);
+    const dx = Math.round((rightMass - m.stem)/2);
+    const bottom = m.height - m.topBar - i.h;
+    const dy = Math.round((bottom - m.topBar)/2);
+    applyPatch({inner:{offsetX:dx, offsetY:dy}},'optikai közép');
+    toast('Belső forma optikailag középre igazítva','ok'); return; }
+  case 'hxReset': applyPatch({helix:{x1:-161,y1:583,x2:782,y2:135}},'helix tengely'); return;
+  case 'hxMirror': applyPatch({helix:{x1:S.mark.width-S.helix.x1, y1:S.helix.y1,
+                                      x2:S.mark.width-S.helix.x2, y2:S.helix.y2}},'helix tükrözés'); return;
+  case 'hxFlat': { const cy=S.mark.height/2;
+    applyPatch({helix:{y1:cy,y2:cy,x1:-S.mark.width*0.3,x2:S.mark.width*1.25}},'helix vízszintes'); return; }
+  case 'sep-': case 'sep•': case 'sep|': case 'sep/': {
+    const ch=a.slice(3);
+    const t=S.svc.text.replace(/\s*[-–—•|\/]\s*/g,' '+ch+' ');
+    applyPatch({svc:{text:t}},'elválasztó'); return; }
+  case 'expSVG':    exportSVG(false); return;
+  case 'expSVGEmb': exportSVG(true); return;
+  case 'expPNG1':   exportPNG(1); return;
+  case 'expPNG2':   exportPNG(2); return;
+  case 'expPNG4':   exportPNG(4); return;
+  case 'expPNG8':   exportPNG(8); return;
+  case 'expBoth':   exportBoth(); return;
+  case 'expPack':   exportPack(); return;
+  case 'copySVG':   copySVG(); return;
+  case 'expJSON':   downloadText(fileBase()+'.json', JSON.stringify({app:'darwin-logo-studio',appVersion:APP_VERSION,state:S},null,2),'application/json'); toast('JSON mentve','ok'); return;
+  case 'expAnimSVG':exportAnimSVG(); return;
+  case 'expWebM':   exportWebM(); return;
+  case 'expFrames': exportFrames(); return;
+  }
+}
+function fileBase(){
+  const n=(S.meta.name||'darwinai-logo').toLowerCase()
+    .replace(/[áà]/g,'a').replace(/[éè]/g,'e').replace(/[íì]/g,'i')
+    .replace(/[óöő]/g,'o').replace(/[úüű]/g,'u').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  return (n||'darwinai-logo')+(S.helix.show?'-helix':'-clean');
+}
+
+/* ---------- export segedek ---------- */
+function buildForExport(state, animTime){
+  const holder=el('div'); measure.appendChild(holder);
+  const svg=buildSVG(holder, state, {forExport:true, animT:animTime||0, bakeBG:true, prefix:'dw'});
+  const txt=optimizeSVG(serializeSVG(svg),2);
+  holder.remove();
+  return txt;
+}
+async function withFonts(svgText, state){
+  const css=await fetchEmbeddedFontCSS(fontsInUse(state), charsInUse(state));
+  if(!css) return {text:svgText, ok:false};
+  return {text:injectStyle(svgText, css), ok:true};
+}
+function exportSVG(embed){
+  const txt=buildForExport(S, animT);
+  if(!embed){ downloadText(fileBase()+'.svg', txt, 'image/svg+xml'); toast('SVG mentve (élő szöveg)','ok'); return; }
+  toast('Betűtípusok beágyazása…');
+  withFonts(txt,S).then(r=>{
+    downloadText(fileBase()+'-embedded.svg', r.text, 'image/svg+xml');
+    toast(r.ok?'SVG mentve beágyazott fonttal':'SVG mentve – a font beágyazása nem sikerült (offline?)', r.ok?'ok':'warn', 4000);
+  });
+}
+async function exportPNG(mult){
+  try{
+    toast('PNG készítése…');
+    const txt=buildForExport(S, animT);
+    const r=await withFonts(txt,S);
+    const svg=paper.querySelector('svg');
+    const vb=(svg.getAttribute('viewBox')||'0 0 1 1').split(/\s+/).map(Number);
+    const blob=await rasterize(r.text, vb[2]*mult, vb[3]*mult, null);
+    downloadBlob(fileBase()+'@'+mult+'x.png', blob);
+    toast('PNG mentve · '+Math.round(vb[2]*mult)+'×'+Math.round(vb[3]*mult)+(r.ok?'':' (font nélkül!)'), r.ok?'ok':'warn',4000);
+  }catch(e){ toast('PNG hiba: '+e.message,'bad',5000); }
+}
+function exportBoth(){
+  const a=deepMerge(S,{helix:{show:false}});
+  const b=deepMerge(S,{helix:{show:true}});
+  downloadText('darwinai-logo-clean.svg', buildForExport(a,0), 'image/svg+xml');
+  setTimeout(()=>downloadText('darwinai-logo-helix.svg', buildForExport(b,0), 'image/svg+xml'), 350);
+  toast('Mindkét változat mentve','ok');
+}
+async function exportPack(){
+  const sizes=[1024,512,256,128,64,32,16];
+  try{
+    const txt=buildForExport(deepMerge(S,{canvas:{trim:false}}), 0);
+    const r=await withFonts(txt,S);
+    const svg=paper.querySelector('svg');
+    const vb=(svg.getAttribute('viewBox')||'0 0 1 1').split(/\s+/).map(Number);
+    const ar=vb[2]/vb[3];
+    for(const s of sizes){
+      const blob=await rasterize(r.text, ar>=1?s:s*ar, ar>=1?s/ar:s, null);
+      downloadBlob(fileBase()+'-'+s+'.png', blob);
+      await new Promise(r2=>setTimeout(r2,260));
+    }
+    toast('Ikoncsomag mentve ('+sizes.length+' PNG)','ok');
+  }catch(e){ toast('Hiba: '+e.message,'bad',5000); }
+}
+function copySVG(){
+  copyToClipboard(buildForExport(S,animT))
+    .then(()=>toast('SVG a vágólapon','ok'))
+    .catch(()=>toast('A vágólapra másolás nem sikerült','bad'));
+}
+/* ---------- animalt export ---------- */
+function exportAnimSVG(){
+  if(S.anim.mode==='none'){ toast('Előbb válassz animációs módot.','warn'); return; }
+  const N=clamp(Math.round(S.anim.frames),4,90);
+  const dur=S.anim.duration/Math.max(.05,S.anim.speed);
+  const holder=el('div'); measure.appendChild(holder);
+  let inner='', vb='', w=0,h=0;
+  for(let i=0;i<N;i++){
+    const svg=buildSVG(holder, S, {forExport:true, animT:i/N, bakeBG:false, prefix:'f'+i});
+    if(!i){ vb=svg.getAttribute('viewBox'); w=svg.getAttribute('width'); h=svg.getAttribute('height'); }
+    let body='';
+    Array.from(svg.childNodes).forEach(n=>{
+      if(n.nodeName==='title') return;
+      body += new XMLSerializer().serializeToString(n);
+    });
+    inner += '<g class="dwf" style="animation-delay:'+nf(-i*dur/N,3)+'s">'+body+'</g>';
+    holder.innerHTML='';
+  }
+  holder.remove();
+  const css='.dwf{visibility:hidden;animation:dwflip '+nf(dur,3)+'s steps(1,end) infinite}'
+    +'@keyframes dwflip{0%{visibility:visible}'+nf(100/N,4)+'%,100%{visibility:hidden}}';
+  const out='<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="'+SVGNS+'" viewBox="'+vb+'" width="'+w+'" height="'+h+'">'
+    +'<style type="text/css"><![CDATA['+css+']]></style>'+inner+'</svg>';
+  downloadText(fileBase()+'-animated.svg', optimizeSVG(out,2), 'image/svg+xml');
+  toast('Animált SVG mentve · '+N+' képkocka','ok',4000);
+}
+async function exportFrames(){
+  if(S.anim.mode==='none'){ toast('Előbb válassz animációs módot.','warn'); return; }
+  const N=clamp(Math.round(S.anim.frames),4,90);
+  const svg0=paper.querySelector('svg');
+  const vb=(svg0.getAttribute('viewBox')||'0 0 1 1').split(/\s+/).map(Number);
+  toast('Képkockák renderelése ('+N+' db)…');
+  try{
+    const css=await fetchEmbeddedFontCSS(fontsInUse(S), charsInUse(S));
+    for(let i=0;i<N;i++){
+      const txt=injectStyle(buildForExport(S, i/N), css);
+      const blob=await rasterize(txt, vb[2], vb[3], null);
+      downloadBlob(fileBase()+'-f'+String(i).padStart(3,'0')+'.png', blob);
+      await new Promise(r=>setTimeout(r,180));
+    }
+    toast('Kész: '+N+' PNG képkocka','ok');
+  }catch(e){ toast('Hiba: '+e.message,'bad',5000); }
+}
+async function exportWebM(){
+  if(S.anim.mode==='none'){ toast('Előbb válassz animációs módot.','warn'); return; }
+  if(typeof MediaRecorder==='undefined'){ toast('Ez a böngésző nem támogatja a videórögzítést.','bad'); return; }
+  const svg0=paper.querySelector('svg');
+  const vb=(svg0.getAttribute('viewBox')||'0 0 1 1').split(/\s+/).map(Number);
+  const W=Math.min(1600,Math.round(vb[2])), H=Math.round(W*vb[3]/vb[2]);
+  const fps=25, secs=S.anim.duration/Math.max(.05,S.anim.speed), total=Math.round(fps*secs);
+  const cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+  const cx=cv.getContext('2d');
+  let mime='video/webm;codecs=vp9';
+  if(!MediaRecorder.isTypeSupported(mime)) mime='video/webm;codecs=vp8';
+  if(!MediaRecorder.isTypeSupported(mime)) mime='video/webm';
+  const stream=cv.captureStream(fps);
+  const rec=new MediaRecorder(stream,{mimeType:mime, videoBitsPerSecond:8_000_000});
+  const chunks=[]; rec.ondataavailable=e=>{ if(e.data.size) chunks.push(e.data); };
+  const done=new Promise(res=>{ rec.onstop=()=>res(new Blob(chunks,{type:'video/webm'})); });
+  toast('Videó rögzítése… ('+total+' kocka)');
+  const css=await fetchEmbeddedFontCSS(fontsInUse(S), charsInUse(S));
+  rec.start();
+  try{
+    for(let i=0;i<total;i++){
+      const txt=injectStyle(buildForExport(S, i/total), css);
+      const blob=await rasterize(txt, W, H, S.canvas.bg==='checker'?'#FFFFFF':null);
+      const img=await new Promise((res,rej)=>{ const u=URL.createObjectURL(blob); const im=new Image();
+        im.onload=()=>{URL.revokeObjectURL(u);res(im);}; im.onerror=rej; im.src=u; });
+      cx.clearRect(0,0,W,H); cx.drawImage(img,0,0,W,H);
+      await new Promise(r=>setTimeout(r, 1000/fps));
+    }
+  }catch(e){ toast('Rögzítési hiba: '+e.message,'bad',5000); }
+  rec.stop();
+  const blob=await done;
+  downloadBlob(fileBase()+'.webm', blob);
+  toast('WebM videó mentve','ok');
+}
+
+/* ==========================================================================
+   VERZIOK
+   ========================================================================== */
+function thumbOf(){
+  try{
+    const svg=paper.querySelector('svg'); if(!svg) return '';
+    const c=svg.cloneNode(true); c.querySelectorAll('#guides').forEach(n=>n.remove());
+    c.setAttribute('width',120); c.setAttribute('height',120);
+    const t=new XMLSerializer().serializeToString(c);
+    return 'data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(t)));
+  }catch(e){ return ''; }
+}
+function saveVersion(){
+  const now=new Date();
+  const dflt=(S.meta.name||'Darwin AI')+' · '+now.toLocaleDateString('hu-HU')+' '+now.toTimeString().slice(0,5);
+  modal('Verzió mentése',
+    '<div><label class="fl">Név</label><input class="txt" id="mvName" value="'+esc(dflt)+'"></div>'+
+    '<div><label class="fl">Megjegyzés – mi változott, mire jó?</label><textarea id="mvNote" rows="4" placeholder="pl. vastagabb szár, kisebb négyzet, ügyfélnek küldve"></textarea></div>'+
+    '<div><label class="fl">Címkék (vesszővel)</label><input class="txt" id="mvTags" placeholder="ügyfél, v2, sötét háttér"></div>',
+    [{label:'Mégsem'},{label:'Mentés',kind:'pri',fn:m=>{
+      const v=STORE.save(S,{ name:m.querySelector('#mvName').value.trim()||'Verzió',
+        note:m.querySelector('#mvNote').value,
+        tags:m.querySelector('#mvTags').value.split(',').map(x=>x.trim()).filter(Boolean),
+        thumb:thumbOf() });
+      curVersionId=v.id; renderRail();
+      toast(STORE.persistent?'Verzió mentve':'Mentve (csak memóriában – '+STORE.lastError+')', STORE.persistent?'ok':'warn',4000);
+    }}]);
+}
+function renderRail(){
+  const q=($('vSearch').value||'').toLowerCase();
+  const list=STORE.list().filter(v=> !q ||
+    (v.name+' '+v.note+' '+(v.tags||[]).join(' ')).toLowerCase().indexOf(q)>=0);
+  const box=$('vlist'); box.innerHTML='';
+  $('vcount').textContent=STORE.list().length;
+  $('vbytes').textContent=Math.round(STORE.usageBytes()/1024)+' kB';
+  $('vpersist').textContent=STORE.persistent?'localStorage':'csak memória';
+  $('vpersist').style.color=STORE.persistent?'':'var(--warn)';
+  if(!list.length){ box.appendChild(el('div','empty', q?'Nincs találat.':'Még nincs mentett verzió.<br>Nyomd meg a <b>★ Mentés</b> gombot,<br>és írj hozzá megjegyzést.')); return; }
+  list.forEach(v=>{
+    const c=el('div','vcard'+(v.id===curVersionId?' cur':'')+(v.pinned?' pinned':''));
+    const th=el('div','th'); if(v.thumb){ const i=el('img'); i.src=v.thumb; th.appendChild(i); }
+    const info=el('div','vi');
+    info.appendChild(el('div','vn', esc(v.name)));
+    info.appendChild(el('div','vd', new Date(v.updatedAt).toLocaleString('hu-HU')));
+    if(v.note) info.appendChild(el('div','vnote', esc(v.note)));
+    if(v.tags&&v.tags.length){ const tg=el('div','vtags'); v.tags.forEach(t=>tg.appendChild(el('span','vtag',esc(t)))); info.appendChild(tg); }
+    const acts=el('div','vacts');
+    const ab=(t,title,fn,cls)=>{ const b=el('button','iact '+(cls||''),t); b.title=title;
+      b.addEventListener('click',e=>{e.stopPropagation();fn();}); acts.appendChild(b); };
+    ab('&#9733;','Rögzítés',()=>{STORE.togglePin(v.id);renderRail();},'pin');
+    ab('&#9998;','Átnevezés / megjegyzés',()=>editVersion(v.id));
+    ab('&#10697;','Másolat',()=>{STORE.duplicate(v.id);renderRail();toast('Másolat készült','ok');});
+    ab('&#10005;','Törlés',()=>{
+      modal('Verzió törlése','<div class="note">„'+esc(v.name)+'” véglegesen törlődik.</div>',
+        [{label:'Mégsem'},{label:'Törlés',kind:'danger',fn:()=>{STORE.remove(v.id);renderRail();toast('Törölve');}}]);
+    });
+    c.appendChild(th); c.appendChild(info); c.appendChild(acts);
+    c.addEventListener('click',()=>{
+      applyState(deepClone(v.state),'betöltés: '+v.name);
+      curVersionId=v.id; renderRail(); toast('Betöltve: '+v.name,'ok');
+    });
+    box.appendChild(c);
+  });
+}
+function editVersion(id){
+  const v=STORE.get(id); if(!v) return;
+  modal('Verzió szerkesztése',
+    '<div><label class="fl">Név</label><input class="txt" id="evName" value="'+esc(v.name)+'"></div>'+
+    '<div><label class="fl">Megjegyzés</label><textarea id="evNote" rows="5">'+esc(v.note)+'</textarea></div>'+
+    '<div><label class="fl">Címkék</label><input class="txt" id="evTags" value="'+esc((v.tags||[]).join(', '))+'"></div>',
+    [{label:'Mégsem'},{label:'Mentés',kind:'pri',fn:m=>{
+      STORE.update(id,{name:m.querySelector('#evName').value.trim()||v.name,
+        note:m.querySelector('#evNote').value,
+        tags:m.querySelector('#evTags').value.split(',').map(x=>x.trim()).filter(Boolean)});
+      renderRail(); toast('Frissítve','ok');
+    }}]);
+}
+function compareVersions(){
+  const list=STORE.list();
+  if(!list.length){ toast('Nincs mentett verzió.','warn'); return; }
+  const opts=list.map(v=>'<option value="'+v.id+'">'+esc(v.name)+'</option>').join('');
+  modal('Összevetés az aktuális beállítással',
+    '<div><label class="fl">Melyik verzióval?</label><select id="cmpSel">'+opts+'</select></div>'+
+    '<div id="cmpOut" class="note">…</div>',
+    [{label:'Bezár'}],
+    m=>{
+      const run=()=>{
+        const v=STORE.get(m.querySelector('#cmpSel').value); if(!v) return;
+        const d=stateDiff(migrate(v.state), S);
+        const out=m.querySelector('#cmpOut');
+        if(!d.length){ out.innerHTML='<b>Nincs eltérés.</b>'; return; }
+        out.innerHTML='<table class="difftbl"><tbody>'+d.map(x=>
+          '<tr><td>'+esc(x.path)+'</td><td class="from">'+esc(JSON.stringify(x.from))+'</td>'+
+          '<td class="to">'+esc(JSON.stringify(x.to))+'</td></tr>').join('')+'</tbody></table>'+
+          '<div style="margin-top:8px">'+d.length+' eltérés</div>';
+      };
+      m.querySelector('#cmpSel').addEventListener('change',run); run();
+    });
+}
+
+/* ==========================================================================
+   ANIMACIO
+   ========================================================================== */
+function animLoop(ts){
+  animRAF=requestAnimationFrame(animLoop);
+  if(S.anim.mode==='none' || !S.anim.playing || scrubbing) return;
+  if(!animStart) animStart=ts;
+  const dur=Math.max(0.05,S.anim.duration)/Math.max(0.05,S.anim.speed)*1000;
+  animT=((ts-animStart)%dur)/dur;
+  $('scrub').value=Math.round(animT*1000);
+  $('tlabel').textContent=nf(animT*dur/1000,2)+' / '+nf(dur/1000,2)+' s';
+  render();
+}
+function updateAnimUI(){
+  const on=S.anim.mode!=='none';
+  $('scrubWrap').classList.toggle('hidden',!on);
+  $('bPlay').innerHTML=S.anim.playing?'&#10074;&#10074;':'&#9654;';
+  if(!on){ animT=0; animStart=0; }
+}
+
+/* ==========================================================================
+   ESEMENYEK / INDULAS
+   ========================================================================== */
+function wire(){
+  $('bUndo').addEventListener('click',()=>{ const s=HIST.undo(); if(s){ S=s; window.__S=S; ensureFonts(); scheduleRender(); } });
+  $('bRedo').addEventListener('click',()=>{ const s=HIST.redo(); if(s){ S=s; window.__S=S; ensureFonts(); scheduleRender(); } });
+  $('bSave').addEventListener('click',saveVersion);
+  $('bExport').addEventListener('click',()=>{
+    document.querySelectorAll('#panel .sec').forEach(s=>s.classList.remove('open'));
+    const ix=CONTROL_SCHEMA.findIndex(x=>x.id==='export');
+    const secs=document.querySelectorAll('#panel .sec');
+    if(secs[ix]){ secs[ix].classList.add('open'); secs[ix].scrollIntoView({behavior:'smooth',block:'start'}); }
+  });
+  $('bTheme').addEventListener('click',()=>{
+    const h=document.documentElement;
+    h.dataset.theme = h.dataset.theme==='dark'?'light':'dark';
+    try{ localStorage.setItem('dw-theme',h.dataset.theme); }catch(e){}
+  });
+  $('bRail').addEventListener('click',()=>$('rail').classList.toggle('on'));
+  $('bVarSimple').addEventListener('click',()=>doAction('preset','simple'));
+  $('bVarCross').addEventListener('click',()=>doAction('preset','cross'));
+  $('vSearch').addEventListener('input',renderRail);
+  $('bVCompare').addEventListener('click',compareVersions);
+  $('bVExport').addEventListener('click',()=>{
+    downloadText('darwin-logo-verziok.json', STORE.exportAll(), 'application/json');
+    toast('Verziók exportálva','ok');
+  });
+  $('bVImport').addEventListener('click',()=>$('fileIn').click());
+  $('fileIn').addEventListener('change',e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const r=new FileReader();
+    r.onload=()=>{ handleImport(String(r.result), f.name); $('fileIn').value=''; };
+    r.readAsText(f);
+  });
+
+  /* zoom */
+  $('zIn').addEventListener('click',()=>{ fitZoom=false; viewZoom=clamp(viewZoom*1.2,0.02,12); layoutPaper(S); });
+  $('zOut').addEventListener('click',()=>{ fitZoom=false; viewZoom=clamp(viewZoom/1.2,0.02,12); layoutPaper(S); });
+  $('zFit').addEventListener('click',()=>{ fitZoom=true; layoutPaper(S); });
+  window.addEventListener('resize',()=>layoutPaper(S));
+
+  /* hatter gombok */
+  const bgs=[['checker','Átlátszó'],['white','Fehér'],['black','Fekete'],['brand','Brand'],['custom','Egyéni']];
+  const bp=$('bgPills');
+  bgs.forEach(([v,l])=>{ const b=el('button','',l);
+    b.addEventListener('click',()=>onChange('canvas.bg',v,{commit:true}));
+    b.dataset.v=v; bp.appendChild(b); });
+  window.__syncBg=()=>bp.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.canvas.bg));
+
+  /* animacio */
+  $('bPlay').addEventListener('click',()=>{ onChange('anim.playing',!S.anim.playing,{commit:true});
+    animStart=0; updateAnimUI(); });
+  $('scrub').addEventListener('mousedown',()=>scrubbing=true);
+  document.addEventListener('mouseup',()=>{ if(scrubbing){ scrubbing=false; animStart=0; } });
+  $('scrub').addEventListener('input',()=>{
+    animT=parseFloat($('scrub').value)/1000;
+    const dur=Math.max(0.05,S.anim.duration)/Math.max(0.05,S.anim.speed);
+    $('tlabel').textContent=nf(animT*dur,2)+' / '+nf(dur,2)+' s';
+    render();
+  });
+
+  /* billentyuk */
+  document.addEventListener('keydown',e=>{
+    const tag=(e.target.tagName||'').toLowerCase();
+    const typing = tag==='input'||tag==='textarea'||tag==='select';
+    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){ e.preventDefault();
+      const s=e.shiftKey?HIST.redo():HIST.undo(); if(s){S=s;window.__S=S;ensureFonts();scheduleRender();} return; }
+    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){ e.preventDefault();
+      const s=HIST.redo(); if(s){S=s;window.__S=S;ensureFonts();scheduleRender();} return; }
+    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){ e.preventDefault(); saveVersion(); return; }
+    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='e'){ e.preventDefault(); exportSVG(false); return; }
+    if(e.key==='Escape'){ closeModal(); return; }
+    if(typing) return;
+    if(e.key===' '){ e.preventDefault(); if(S.anim.mode!=='none'){ onChange('anim.playing',!S.anim.playing,{commit:false}); animStart=0; updateAnimUI(); } }
+    if(e.key==='h'||e.key==='H'){ onChange('helix.show',!S.helix.show,{commit:true}); }
+    if(e.key==='g'||e.key==='G'){ onChange('guides.grid',!S.guides.grid,{commit:true}); }
+    if(e.key==='b'||e.key==='B'){ onChange('guides.bbox',!S.guides.bbox,{commit:true}); }
+  });
+
+  /* fajl behuzas */
+  ['dragenter','dragover'].forEach(t=>stage.addEventListener(t,e=>{e.preventDefault();stage.classList.add('drag');}));
+  ['dragleave','drop'].forEach(t=>stage.addEventListener(t,e=>{e.preventDefault();stage.classList.remove('drag');}));
+  stage.addEventListener('drop',e=>{
+    const f=e.dataTransfer.files[0]; if(!f) return;
+    const r=new FileReader(); r.onload=()=>handleImport(String(r.result), f.name); r.readAsText(f);
+  });
+}
+function handleImport(text, name){
+  try{
+    const d=JSON.parse(text);
+    if(d && d.state){ applyState(d.state,'import: '+name); toast('Beállítás betöltve','ok'); return; }
+    const n=STORE.importAll(text,true); renderRail(); toast(n+' verzió importálva','ok'); return;
+  }catch(e){ toast('Nem sikerült beolvasni: '+e.message,'bad',5000); }
+}
+
+/* ---------- indulas ---------- */
+function boot(){
+  try{ const t=localStorage.getItem('dw-theme'); if(t) document.documentElement.dataset.theme=t; }catch(e){}
+  renderControls(panel, CONTROL_SCHEMA, S, onChange);
+  wire();
+  HIST.reset(S);
+  renderRail();
+  updateAnimUI();
+  render();
+  ensureFonts().then(()=>{ clearFitCache(); render(); layoutPaper(S); });
+  animRAF=requestAnimationFrame(animLoop);
+  if(!STORE.persistent) toast(STORE.lastError,'warn',6000);
+}
+let _lastAnimMode=null, _lastPlaying=null;
+function updateAnimUI2(){
+  if(S.anim.mode!==_lastAnimMode || S.anim.playing!==_lastPlaying){
+    _lastAnimMode=S.anim.mode; _lastPlaying=S.anim.playing; animStart=0; updateAnimUI();
+  }
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+</script>
+</body>
+</html>

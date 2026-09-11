@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Darwin AI – alap (helix nélküli) logó
+  A Simple.png pixelpontos kimérése alapján készült vektoros mása.
+  Vászon 1254×1254, átlátszó háttér. A D belső négyzete valódi knockout (fill-rule="evenodd").
+  A szövegek élő <text> elemek – véglegesítéskor alakítsd görbévé (Illustrator / Figma),
+  vagy exportálj beágyazott fonttal a Darwin Logo Studio-ból.
+  Betűk: Archivo Black (wordmark), Montserrat 500 (tagline), Poppins 600 (szolgáltatás sor).
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1254 1254" width="1254" height="1254">
+<title>Darwin AI logó</title>
+<defs>
+<linearGradient id="dwGold" x1="0.5" y1="0" x2="0.5" y2="1">
+<stop offset="0%" stop-color="#F2BC5E"/>
+<stop offset="50%" stop-color="#B47D2B"/>
+<stop offset="100%" stop-color="#7F4B05"/>
+</linearGradient>
+</defs>
+<g id="logo_root" transform="translate(627,127.5) scale(1)">
+<g id="mark_D" transform="translate(-329.5,0)">
+<path id="D_shape" fill-rule="evenodd" fill="#0A0A0A" d="M0,0L378.92,0C398.12,0 413.54,0.43 432.59,2.76C446.85,4.5 460.81,7.17 474.65,11.02C487.45,14.58 499.9,19.1 511.96,24.68C523.57,30.06 534.68,36.36 545.24,43.61C555.68,50.78 565.47,58.79 574.57,67.61C583.78,76.52 592.19,86.17 599.83,96.47C607.7,107.08 614.68,118.28 620.83,129.98C627.28,142.24 632.77,154.95 637.4,168C642.34,181.95 646.27,196.16 649.36,210.63C652.75,226.54 655.07,242.49 656.58,258.69C658.62,280.49 659,298.1 659,320C659,341.9 658.62,359.51 656.58,381.31C655.07,397.51 652.75,413.46 649.36,429.37C646.27,443.84 642.34,458.05 637.4,472C632.77,485.05 627.28,497.76 620.83,510.02C614.68,521.72 607.7,532.92 599.83,543.53C592.19,553.83 583.78,563.48 574.57,572.39C565.47,581.21 555.68,589.22 545.24,596.39C534.68,603.64 523.57,609.94 511.96,615.32C499.9,620.9 487.45,625.42 474.65,628.98C460.81,632.83 446.85,635.5 432.59,637.24C413.54,639.57 398.12,640 378.93,640L0,640ZM176,183L176,473L462,473L462,183Z"/>
+</g>
+<g id="wordmark_group" transform="translate(0,830)">
+<text x="0" y="0" text-anchor="middle" font-family="Archivo Black, Helvetica Neue, Arial, sans-serif" font-weight="400" font-size="206.42" letter-spacing="-9.22" fill="#0A0A0A" textLength="961" lengthAdjust="spacing"><tspan id="Darwin">Darwin</tspan><tspan id="AI" fill="url(#dwGold)" dx="2.46">AI</tspan></text>
+</g>
+<g id="tagline_group" transform="translate(0,909)">
+<text x="0" y="0" text-anchor="middle" font-family="Montserrat, Helvetica Neue, Arial, sans-serif" font-weight="500" font-size="51.62" letter-spacing="13.67" fill="#0A0A0A" textLength="961" lengthAdjust="spacing">MESTERSÉGES EVOLÚCIÓ</text>
+</g>
+<g id="services_group" transform="translate(0,984)">
+<text x="0" y="0" text-anchor="middle" font-family="Poppins, Helvetica Neue, Arial, sans-serif" font-weight="600" font-size="57.05" letter-spacing="-0.91" fill="url(#dwGold)" textLength="961" lengthAdjust="spacing">Oktatás - Tanácsadás - Fejlesztés</text>
+</g>
+</g>
+</svg>

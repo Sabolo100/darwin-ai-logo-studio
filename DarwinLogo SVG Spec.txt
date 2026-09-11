@@ -1,0 +1,306 @@
+Persze — itt egy használható, átadható SVG-spec és vektoros brief a két logóváltozathoz.
+
+DARWIN AI LOGÓ – SVG SPEC / VEKTOROS BRIEF
+
+1. CÉL
+
+Készüljön 2 darab végleges, letisztított, gyártásra alkalmas, átlátszó hátterű SVG logó:
+
+A) HELIX NÉLKÜLI VÁLTOZAT
+B) HELIXES VÁLTOZAT – a D közepén áttörő, arany helix/cube motívummal
+
+Mindkettő:
+
+* transzparens háttér
+* letisztult, prémium, modern
+* webre és nyomdai továbbdolgozásra is alkalmas
+* fekete + arany alapú
+* középre rendezett logó lockup
+
+2. VÁSZON / ARTBOARD
+
+Javasolt artboard:
+
+* 1200 x 1200 px
+* background: transparent
+* RGB színtér webhez
+* később CMYK-verzió külön készíthető
+
+3. LOGÓ FELÉPÍTÉSE
+
+A teljes lockup 4 részből áll, felülről lefelé:
+
+1. embléma: nagy D betű, belül négyzet alakú kivágással
+2. wordmark: "Darwin AI"
+3. tagline: "MESTERSÉGES EVOLÚCIÓ"
+4. service line: "Oktatás - Tanácsadás - Fejlesztés"
+
+Az egész kompozíció függőlegesen középre rendezett.
+
+4. EMBLÉMA – A D BETŰ
+
+Forma:
+
+* nagy, vastag, homogén fekete D
+* geometrikus, modern, erős forma
+* a D belső kivágása NEM követi a külső ívet
+* a belső kivágás egy tiszta négyzet
+* a D teljesen homogén fekete legyen, ne legyen csillanás, ne legyen fényfolt
+
+Szín:
+
+* fekete: #0A0A0A vagy #111111
+
+Arány:
+
+* a D embléma legyen a lockup legerősebb eleme
+* javasolt embléma bounding box kb. 560–620 px széles és 500–560 px magas egy 1200x1200-as vásznon
+* a belső négyzet optikailag középre igazított legyen
+
+Belső négyzet:
+
+* ne fehér kitöltés legyen
+* átlátszó kivágás legyen
+* SVG-ben valódi üres forma / knockout legyen
+
+5. WORDMARK – DARWIN AI
+
+Szöveg:
+
+* "Darwin AI"
+
+Tipóhangulat:
+
+* modern geometrikus sans-serif
+* erős, széles, prémium megjelenés
+* ajánlott karakter: Montserrat ExtraBold / Manrope ExtraBold / Gotham-szerű forma
+* véglegesítésnél a szöveg legyen görbévé alakítva
+
+Színezés:
+
+* "Darwin" fekete: ugyanaz a fekete, mint a D
+* "AI" arany
+
+Arany javasolt gradient:
+
+* highlight: #F3D37A
+* mid: #D9A63E
+* shadow: #B67A22
+
+Megjelenés:
+
+* az arany lehet finom lineáris gradient
+* ne legyen túl 3D-s, inkább elegáns, prémium flat-metallic
+
+6. TAGLINE
+
+Szöveg:
+
+* "MESTERSÉGES EVOLÚCIÓ"
+
+Stílus:
+
+* uppercase
+* ritkított tracking
+* elegáns, könnyebb sans-serif
+* szín: sötét szürke vagy fekete
+
+Javasolt szín:
+
+* #3C3C3C vagy #2F2F2F
+
+7. SERVICE LINE
+
+Szöveg:
+
+* "Oktatás - Tanácsadás - Fejlesztés"
+
+Fontos:
+
+* mindhárom szó kezdődjön nagybetűvel
+* kötőjelekkel és szóközökkel jelenjen meg:
+  "Oktatás - Tanácsadás - Fejlesztés"
+
+Szín:
+
+* arany
+* ugyanaz az arany szín / gradient rendszer, mint az "AI" szónál
+
+Szélesség:
+
+* optikailag pontosan olyan széles legyen, mint felette
+
+  * a "Darwin AI" sor
+  * és a "MESTERSÉGES EVOLÚCIÓ" sor
+* ezt trackinggel és/vagy karakterközzel kell finoman beállítani
+* nem muszáj matematikailag pixelre ugyanaz legyen, de vizuálisan ugyanakkora szélességűnek hasson
+
+8. VÁLTOZAT A – HELIX NÉLKÜLI
+
+Ez a tisztább, corporate alapváltozat.
+
+Tartalma:
+
+* nagy fekete D
+* belső négyzet kivágás
+* alatta "Darwin AI"
+* alatta "MESTERSÉGES EVOLÚCIÓ"
+* alatta arannyal: "Oktatás - Tanácsadás - Fejlesztés"
+
+Nincs benne:
+
+* helix
+* kockasor
+* DNS motívum
+* egyéb dekoráció
+
+Ez legyen a legletisztultabb master logo.
+
+9. VÁLTOZAT B – HELIXES
+
+Ez az expresszívebb, storytellinges változat.
+
+Motívum:
+
+* arany helix / evolúciós lánc
+* bal alsó irányból indul
+* részben a D mögül jön
+* átmegy a D belső négyzetén
+* a jobb felső részen a D előtt halad tovább
+* a vége lehet egy nagyobb arany kocka
+
+Fontos vizuális szabályok:
+
+* a D fekete tömege itt is maradjon teljesen homogén fekete
+* a helix ne csillanjon bele a fekete D-be
+* a helix legyen a D elé/mögé rétegezve
+* a belső négyzetben jól láthatóan „áttörő” hatást adjon
+
+Helix stílusa:
+
+* tiszta, egyszerű, elegáns
+* ne legyen biológiailag túl részletes
+* inkább absztrakt DNS / evolúció / technológia jel
+* elemei lehetnek:
+
+  * arany gömbök
+  * arany vékony összekötések
+  * arany kockák
+* premium, minimal 3D-hatás megengedett, de ne legyen túl effektelt
+
+10. SZÍNPALETTA
+
+Fekete:
+
+* #0A0A0A
+
+Sötétszürke tagline:
+
+* #333333 vagy #3C3C3C
+
+Arany gradient:
+
+* #F3D37A
+* #D9A63E
+* #B67A22
+
+Optional additional gold shadow:
+
+* #8C5A16
+
+11. ARÁNYOK / ELHELYEZÉS
+
+Javasolt függőleges sorrend:
+
+* D embléma
+* 40–55 px térköz
+* Darwin AI
+* 24–34 px térköz
+* MESTERSÉGES EVOLÚCIÓ
+* 16–24 px térköz
+* Oktatás - Tanácsadás - Fejlesztés
+
+Optikai szabály:
+
+* a 3 alsó sor legyen egy stabil, szépen összefogott tipó-blokk
+* a D és a wordmark együtt legyen a legerősebb vizuális egység
+
+12. TECHNIKAI SVG ELVÁRÁSOK
+
+Kimenet:
+
+* SVG 1.1 vagy SVG Tiny kompatibilis
+* background: transparent
+* minden szöveg outline/görbe legyen
+* a D és a belső négyzet shape-ből épüljön
+* a belső négyzet knockout legyen, ne fehér objektum
+* ne használjon túl sok filtert
+* egyszerű, tiszta vektorgrafika legyen
+
+Hasznos exportok:
+
+* darwinai-logo-clean.svg
+* darwinai-logo-helix.svg
+* darwinai-logo-clean.pdf
+* darwinai-logo-helix.pdf
+* opcionálisan EPS és AI
+
+13. JAVASOLT RÉTEGSTRUKTÚRA
+
+Layer / Group szerkezet:
+
+* logo_root
+
+  * mark_D
+
+    * D_outer
+    * D_inner_cutout
+  * helix_group   (csak a helixes verziónál)
+
+    * helix_nodes
+    * helix_connectors
+    * helix_cubes
+  * wordmark_group
+
+    * Darwin
+    * AI
+  * tagline_group
+
+    * MESTERSÉGES_EVOLÚCIÓ
+  * services_group
+
+    * Oktatás_Tanácsadás_Fejlesztés
+
+14. ÁTADHATÓ RÖVID BRIEF DESIGNERNEK / FEJLESZTŐNEK
+
+Készíts két végleges, transzparens hátterű SVG logót a Darwin AI számára.
+Az alapmotívum egy nagy, homogén fekete, geometrikus D betű, melynek belső negatív tere négyzet alakú kivágás.
+A logó alatt három sor szerepel:
+
+* Darwin AI
+* MESTERSÉGES EVOLÚCIÓ
+* Oktatás - Tanácsadás - Fejlesztés
+
+A "Darwin" fekete, az "AI" arany.
+A "MESTERSÉGES EVOLÚCIÓ" sötét, ritkított uppercase sor.
+Az "Oktatás - Tanácsadás - Fejlesztés" arany legyen, és vizuálisan ugyanolyan széles, mint a felette lévő sorok.
+
+Két verzió készüljön:
+
+1. teljesen letisztult, helix nélküli
+2. olyan változat, amelyben egy arany, absztrakt DNS / evolúciós helix motívum balról indulva áttör a D közepén, majd jobbra fent előjön a D elé
+
+A háttér minden esetben legyen teljesen transzparens.
+
+15. HA AKAROD, A KÖVETKEZŐ KÖRBEN MEGCSINÁLOM EZT IS
+
+Tudok írni még:
+
+* egy rövid, direkt Figma-briefet
+* egy Illustrator-briefet
+* egy konkrét SVG-kód vázat `<svg>...</svg>` formában
+* vagy egy AI / vibe coding promptot, amivel valaki legenerálja vagy újrarajzolja a végleges SVG-t
+
+Ha akarod, a következő üzenetben megírom a
+"VÉGSŐ SVG-GENERÁLÓ PROMPT"
+változatot is.
